@@ -1,10 +1,10 @@
-export const successResponse = (res, data, message = 'Success', statusCode = 200) => {
-    return res.status(statusCode).json({
-        success: true,
-        message,
-        data
-    });
-};
+// export const successResponse = (res, data, message = 'Success', statusCode = 200) => {
+//     return res.status(statusCode).json({
+//         success: true,
+//         message,
+//         data
+//     });
+// };
 
 export const setCookie = (res, token, message = 'Success', statusCode = 200) => {
     // Set cookie options
