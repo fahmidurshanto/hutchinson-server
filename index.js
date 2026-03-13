@@ -5,6 +5,8 @@ import connectDB from './config/database.js';
 import { aboutMe, login, logout, registerUser } from './controllers/user.controller.js';
 import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
+import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidity } from './controllers/investment.controller.js';
+import { isAuthenticated, isAdmin } from './middleware/auth.middleware.js';
 
 // Load environment variables
 dotenv.config();
@@ -20,11 +22,18 @@ app.use(cookieParser());
 // create db connection 
 connectDB();
 
-// Routes
-app.post('/api/v1/auth/user/register', registerUser);
+// Routes for User
+app.post('/api/v1/auth/user/register', isAdmin, registerUser);
 app.post('/api/v1/auth/login', login);
-app.get('/api/v1/auth/logout', logout);
-app.get('/api/v1/auth/me', aboutMe);
+app.get('/api/v1/auth/logout', isAuthenticated, logout);
+app.get('/api/v1/auth/me', isAuthenticated, aboutMe);
+
+// Route for Investment
+app.post('/api/v1/investment/create', isAuthenticated, createInvestment);
+app.post('/api/v1/investment/validity', isAuthenticated, setInvestmentValidity);
+app.get('/api/v1/investment/get', isAuthenticated, getInvestment);   // search by userId(body) with year(query)
+app.get('/api/v1/investment/get/:investmentId', isAuthenticated, getInvestmentById);  // search by investmentId [ex: investmentId=69b47a926476d4c1c33c483a]
+
 
 
 //errorhandler

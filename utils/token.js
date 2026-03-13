@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import AppError from './appError.js';
 
-export const generateToken = (user) => {
+export const generateAccessToken = (user) => {
     const payload = {
         id: user._id,
         firstName: user.firstName,
@@ -10,7 +10,14 @@ export const generateToken = (user) => {
         role: user.role
     };
     return jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+        expiresIn: process.env.ACCESS_TOKEN_VALIDITY || '15m'
+    });
+};
+
+
+export const generateRefreshToken = (userId) => {
+    return jwt.sign({ userId }, process.env.JWT_SECRET, {
+        expiresIn: process.env.REFRESH_TOKEN_VALIDITY || '7d'
     });
 };
 

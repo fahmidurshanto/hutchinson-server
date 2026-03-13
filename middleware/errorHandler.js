@@ -1,6 +1,6 @@
 // middleware/errorHandler.js
 const errorHandler = (err, req, res, next) => {
-    // console.error('🔥 Error:', err); // Log for debugging
+    console.error('🔥 Error:', err); // Log for debugging
 
     // Default error
     let statusCode = 500;
@@ -26,6 +26,9 @@ const errorHandler = (err, req, res, next) => {
     } else if (err.name === 'TokenExpiredError') {
         statusCode = 401;
         message = 'Token expired';
+    } else if (err.name === 'CastError') {
+        statusCode = 400;
+        message = 'Please enter a valid ObjectId';
     }
     // Custom application errors (if you throw them)
     else if (err.isOperational) {

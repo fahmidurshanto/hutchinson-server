@@ -1,8 +1,8 @@
 import User from '../models/user.model.js';
 import AppError from '../utils/appError.js';
 import catchAsync from '../utils/catchAsync.js';
-import { clearCookie, setCookie } from '../utils/response.js';
-import { decodeToken, generateToken } from '../utils/token.js';
+import { clearCookie, setAuthCookies } from '../utils/response.js';
+import { decodeToken, generateAccessToken, generateRefreshToken } from '../utils/token.js';
 
 
 export const registerUser = catchAsync(async (req, res) => {
@@ -32,13 +32,17 @@ export const login = catchAsync(async (req, res) => {
     }
 
     const isMatch = await user.comparePassword(password.toString());
+    console.log(isMatch)
+
+
     if (!isMatch) {
         // Use consistent error handling – throw instead of returning a response
         throw new AppError('Invalid email or password', 401);
     }
 
-    const token = generateToken(user);  // pass the user object
-    setCookie(res, token, 'User logged in successfully', 200);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user._id);
+    setAuthCookies(res, accessToken, refreshToken, 'User logged in successfully', 200);
 });
 
 
