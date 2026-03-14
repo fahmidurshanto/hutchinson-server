@@ -1,6 +1,6 @@
 // middleware/errorHandler.js
 const errorHandler = (err, req, res, next) => {
-    console.error('🔥 Error:', err); // Log for debugging
+    // console.error('🔥 Error:', err); // Log for debugging
 
     // Default error
     let statusCode = 500;

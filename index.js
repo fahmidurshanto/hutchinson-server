@@ -2,11 +2,11 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/database.js';
-import { aboutMe, login, logout, registerUser } from './controllers/user.controller.js';
+import { aboutMe, changeAdminPassword, changeUserPasswordByAdmin, login, logout, registerUser } from './controllers/user.controller.js';
 import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidity } from './controllers/investment.controller.js';
-import { isAuthenticated, isAdmin } from './middleware/auth.middleware.js';
+import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.middleware.js';
 
 // Load environment variables
 dotenv.config();
@@ -23,7 +23,9 @@ app.use(cookieParser());
 connectDB();
 
 // Routes for User
-app.post('/api/v1/auth/user/register', isAdmin, registerUser);
+app.post('/api/v1/auth/user/register', isAuthenticated, isAdmin, registerUser);
+app.post('/api/v1/auth/user/changepassword', isAuthenticated, isAdmin, changeUserPasswordByAdmin);
+app.post('/api/v1/auth/admin/changepassword', isAuthenticated, isAdmin, changeAdminPassword);
 app.post('/api/v1/auth/login', login);
 app.get('/api/v1/auth/logout', isAuthenticated, logout);
 app.get('/api/v1/auth/me', isAuthenticated, aboutMe);

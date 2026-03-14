@@ -28,8 +28,7 @@ export const setAuthCookies = (res, accessToken, refreshToken, message = 'Succes
 
     res.cookie('refreshToken', refreshToken, {
         ...baseOptions,
-        maxAge: refreshMaxAge * 24 * 60 * 60 * 1000, // days
-        path: '/refresh', // optional: restrict to refresh endpoint
+        maxAge: refreshMaxAge * 24 * 60 * 60 * 1000,
     });
 
     return res.status(statusCode).json({
@@ -38,9 +37,31 @@ export const setAuthCookies = (res, accessToken, refreshToken, message = 'Succes
     });
 };
 
+
+export const setAccessCookies = (res, accessToken, next) => {
+    const accessMaxAge = Number(process.env.ACCESS_COOKIES_VALIDITY);
+    if (isNaN(accessMaxAge)) {
+        throw new Error('ACCESS_COOKIES_VALIDITY must be a number');
+    }
+
+    res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: accessMaxAge * 60 * 1000, // convert minutes to milliseconds
+    });
+    next();
+};
+
 export const clearCookie = (res, message = 'Logged out successfully', statusCode = 200) => {
     // Clear cookie by setting it with an expired date
-    res.cookie('token', '', {
+    res.cookie('accessToken', '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        expires: new Date(0) // Set expiration to the past
+    });
+    res.cookie('refreshToken', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
