@@ -12,15 +12,24 @@ import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.mid
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
 // create db connection 
 connectDB();
+
+app.get('/api/v1', (req, res) => res.status(200).json({
+    success: true,
+    message: 'Api is LIVE'
+}));
 
 // Routes for User
 app.post('/api/v1/auth/user/register', isAuthenticated, isAdmin, registerUser);

@@ -1,5 +1,22 @@
 **Base URL:** `http://localhost:4000/api/v1`
 
+**Route:** `/auth/login`  
+**Method** `POST`
+**Body** `{  "email":"palak1@gmail.com",  "password":12345678}`  
+**Response** {
+"success": true,
+"user": {
+"id": "69b2fe0f9f780f4730036dc5",
+"firstName": "Palak",
+"lastName": "Basak",
+"email": "palak1@gmail.com",
+"role": "admin",
+"iat": 1773514401,
+"exp": 1773515301
+}
+}
+
+
 **Route:** `/auth/me`  
 **Method** `GET`  
 **Response** {
