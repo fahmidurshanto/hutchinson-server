@@ -52,6 +52,44 @@ export const uploadDocument = catchAsync(async (req, res, next) => {
     });
 });
 
+// View document (Owner one-time, Admin always)
+export const viewDocument = catchAsync(async (req, res, next) => {
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+        return next(new AppError('Document not found', 404));
+    }
+
+    const isAdmin = req.user.role === 'admin';
+    const isOwner = document.user.toString() === req.user.id.toString();
+
+    // Check access permissions
+    if (!isAdmin && !isOwner) {
+        return next(new AppError('You do not have permission to view this document', 403));
+    }
+
+    // Check if owner has already seen it
+    if (isOwner && !isAdmin && document.hasUserSeen) {
+        return next(new AppError('You have already seen this document once. Access is no longer allowed.', 403));
+    }
+
+    // Resolve absolute path for res.sendFile
+    const absolutePath = path.resolve(document.path);
+
+    if (!fs.existsSync(absolutePath)) {
+        return next(new AppError('File not found on server', 404));
+    }
+
+    // If it's the owner viewing for the first time, mark as seen
+    if (isOwner && !isAdmin && !document.hasUserSeen) {
+        document.hasUserSeen = true;
+        await document.save();
+    }
+
+    // Serve the file
+    res.sendFile(absolutePath);
+});
+
 // Delete document controller (Admin only)
 export const deleteDocument = catchAsync(async (req, res, next) => {
     const document = await Document.findById(req.params.id);

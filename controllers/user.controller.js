@@ -27,6 +27,7 @@ export const registerUser = catchAsync(async (req, res) => {
 export const login = catchAsync(async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+
     if (!user) {
         throw new AppError('Invalid email or password', 400);
     }
@@ -40,7 +41,7 @@ export const login = catchAsync(async (req, res) => {
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user._id);
-    setAuthCookies(res, accessToken, refreshToken, 'User logged in successfully', 200);
+    setAuthCookies(req, res, accessToken, refreshToken, 'User logged in successfully', 200);
 });
 
 
@@ -72,7 +73,7 @@ export const aboutMe = catchAsync(async (req, res) => {
 // change pass of admin
 export const changeAdminPassword = catchAsync(async (req, res) => {
     const { oldPassword, newPassword } = req.body;
-  if (!oldPassword || !newPassword ) {
+    if (!oldPassword || !newPassword) {
         throw new AppError('Old Password and NewPassword are required to validate', 404);
     }
 

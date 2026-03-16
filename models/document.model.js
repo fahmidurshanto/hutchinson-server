@@ -13,6 +13,10 @@ const documentSchema = new mongoose.Schema({
         ref: 'User',
         required: [true, 'User reference is required']
     },
+    hasUserSeen: {
+        type: Boolean,
+        default: false
+    }
 
 
 }, { timestamps: true });

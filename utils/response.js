@@ -6,7 +6,7 @@
 //     });
 // };
 
-export const setAuthCookies = (res, accessToken, refreshToken, message = 'Success', statusCode = 200) => {
+export const setAuthCookies = (req, res, accessToken, refreshToken, message = 'Success', statusCode = 200) => {
     const accessMaxAge = Number(process.env.ACCESS_COOKIES_VALIDITY);
     const refreshMaxAge = Number(process.env.REFRESH_COOKIES_VALIDITY);
 
@@ -14,10 +14,16 @@ export const setAuthCookies = (res, accessToken, refreshToken, message = 'Succes
         throw new Error('Cookie validity environment variables must be numbers');
     }
 
+    // const baseOptions = {
+    //     httpOnly: true,
+    //     secure: process.env.NODE_ENV === 'production',
+    //     sameSite: 'lax', // or 'strict' depending on your needs
+    // };
+
     const baseOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax', // or 'strict' depending on your needs
+        secure: req.secure || req.protocol === 'https',
+        sameSite: 'lax',
     };
 
     res.cookie('accessToken', accessToken, {

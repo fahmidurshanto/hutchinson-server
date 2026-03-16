@@ -154,11 +154,17 @@
     "name": "image-1710620000000.png",
     "path": "uploads/image-1710620000000.png",
     "user": "69b2fe0f9f780f4730036dc5",
+    "hasUserSeen": false,
     "_id": "69b5d8a2bda6b6e488816b40",
     "createdAt": "2026-03-17T02:00:00.000Z",
     "updatedAt": "2026-03-17T02:00:00.000Z"
   }
 }
+
+**Route:** `/document/view/69b5d8a2bda6b6e488816b40`
+**Method** `GET`
+**Response** (Succeeds) -> *Binary stream of the file*
+**Response** (If seen already) -> { "success": false, "message": "You have already seen this document..." }
 
 **Route:** `/document/delete/69b5d8a2bda6b6e488816b40`
 **Method** `DELETE`

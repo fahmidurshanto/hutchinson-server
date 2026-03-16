@@ -7,7 +7,7 @@ import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidity } from './controllers/investment.controller.js';
 import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.middleware.js';
-import { upload, uploadDocument, deleteDocument } from './controllers/document.controller.js';
+import { upload, uploadDocument, deleteDocument, viewDocument } from './controllers/document.controller.js';
 
 // Load environment variables
 dotenv.config();
@@ -23,7 +23,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('/uploads', express.static('uploads'));
+// app.use('/uploads', express.static('uploads')); // Removed to prevent public access
 
 // create db connection 
 connectDB();
@@ -49,6 +49,7 @@ app.get('/api/v1/investment/get/:investmentId', isAuthenticated, getInvestmentBy
 
 // Route for Document
 app.post('/api/v1/document/upload', isAuthenticated, upload.single('file'), uploadDocument);
+app.get('/api/v1/document/view/:id', isAuthenticated, viewDocument);
 app.delete('/api/v1/document/delete/:id', isAuthenticated, isAdmin, deleteDocument);
 
 
