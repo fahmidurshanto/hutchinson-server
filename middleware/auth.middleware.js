@@ -9,28 +9,35 @@ import { decodeToken, generateAccessToken } from "../utils/token.js";
 export const isAuthenticated = catchAsync(async (req, res, next) => {
     const accessToken = req.cookies?.accessToken || req.headers.authorization?.split(' ')[1];
     const refreshToken = req.cookies?.refreshToken;
-
-    if (!refreshToken) {
+    
+    if (!accessToken && !refreshToken) {
         throw new AppError('You are not logged in', 401);
     }
 
-    try {
-        const decoded = decodeToken(accessToken);
-        req.user = decoded;
-        // console.log("from accesstoken")
+    if (accessToken) {
+        try {
+            const decoded = decodeToken(accessToken);
+            req.user = decoded;
+            return next();
+        } catch (accessError) {
+            // If accessToken is invalid/expired, only continue if we have a refreshToken
+            if (!refreshToken) {
+                throw accessError;
+            }
+        }
+    }
 
-        return next();
-    } catch (accessError) {
-        // console.log("from refreshtoken")
+    // Attempt to refresh with refreshToken if accessToken failed or was missing
+    if (refreshToken) {
         try {
             const decodedRefresh = decodeToken(refreshToken);
             const user = await User.findById(decodedRefresh.userId);
             if (!user) throw new AppError('User no longer exists', 401);
 
             const newAccessToken = generateAccessToken(user);
-
             const accessMaxAge = Number(process.env.ACCESS_COOKIES_VALIDITY);
             if (isNaN(accessMaxAge)) throw new Error('Invalid cookie validity');
+            
             res.cookie('accessToken', newAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',

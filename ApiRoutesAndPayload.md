@@ -15,5 +15,7 @@
 | `/investment/validity`          | POST   | User            | `{ "valid": false, "investmentId": "69b5c9bb43096c3836a118f0" }`                                                                                          |
 | `/investment/get`                | GET    | User            | **Body:** `{ "userId": "69b2f9bb08c63d8e441fc9a6" }`<br>**Query (optional):** `?year=2027`                                                       |
 | `/investment/get/:investmentId` | GET    | User            | **URL param:** `investmentId` (e.g., `/get/69b47a926476d4c1c33c483a`) – no body                                   |
+| `/document/upload` | POST | User | **Multipart:** `{ "file": (File), "userId": "69b2f9..." }` |
+| `/document/delete/:id` | DELETE | Admin | **URL param:** `id` (e.g., `/delete/69b5d8...`) – no body |
 
 **Note:** All protected routes require the client to send cookies. The backend automatically refreshes the access token when expired.

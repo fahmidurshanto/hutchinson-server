@@ -129,4 +129,40 @@
 **Response** {
 "success": true,
 "message": "Password changed successfully"
+}**Route:** `/auth/user/register`
+**Method** `POST`
+**Body** `{ "firstName": "John", "lastName": "Doe", "Phone": "12345678", "gender": "male", "email": "john@example.com", "nric": "S1234567A", "address": "123 Street", "nationality": "Singaporean", "password": "password123" }`
+**Response** {
+  "success": true,
+  "message": "User registered successfully"
+}
+
+**Route:** `/auth/logout`
+**Method** `GET`
+**Response** {
+  "success": true,
+  "message": "User logged out successfully"
+}
+
+**Route:** `/document/upload`
+**Method** `POST`
+**Body** (form-data) `{ "file": (File), "userId": "69b2fe0f9f780f4730036dc5" }`
+**Response** {
+  "success": true,
+  "message": "Document uploaded successfully",
+  "document": {
+    "name": "image-1710620000000.png",
+    "path": "uploads/image-1710620000000.png",
+    "user": "69b2fe0f9f780f4730036dc5",
+    "_id": "69b5d8a2bda6b6e488816b40",
+    "createdAt": "2026-03-17T02:00:00.000Z",
+    "updatedAt": "2026-03-17T02:00:00.000Z"
+  }
+}
+
+**Route:** `/document/delete/69b5d8a2bda6b6e488816b40`
+**Method** `DELETE`
+**Response** {
+  "success": true,
+  "message": "Document deleted successfully"
 }

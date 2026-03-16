@@ -7,6 +7,7 @@ import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidity } from './controllers/investment.controller.js';
 import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.middleware.js';
+import { upload, uploadDocument, deleteDocument } from './controllers/document.controller.js';
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads'));
 
 // create db connection 
 connectDB();
@@ -44,6 +46,10 @@ app.post('/api/v1/investment/create', isAuthenticated, createInvestment);
 app.post('/api/v1/investment/validity', isAuthenticated, setInvestmentValidity);
 app.get('/api/v1/investment/get', isAuthenticated, getInvestment);   // search by userId(body) with year(query)
 app.get('/api/v1/investment/get/:investmentId', isAuthenticated, getInvestmentById);  // search by investmentId [ex: investmentId=69b47a926476d4c1c33c483a]
+
+// Route for Document
+app.post('/api/v1/document/upload', isAuthenticated, upload.single('file'), uploadDocument);
+app.delete('/api/v1/document/delete/:id', isAuthenticated, isAdmin, deleteDocument);
 
 
 
