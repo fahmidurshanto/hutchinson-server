@@ -34,6 +34,8 @@ export const login = catchAsync(async (req, res) => {
 
     const isMatch = await user.comparePassword(password.toString());
 
+    console.log(isMatch)
+
     if (!isMatch) {
         // Use consistent error handling – throw instead of returning a response
         throw new AppError('Invalid email or password', 401);
@@ -110,5 +112,61 @@ export const changeUserPasswordByAdmin = catchAsync(async (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Password changed successfully'
+    });
+});
+// get all users (Admin only)
+export const getAllUsers = catchAsync(async (req, res) => {
+    const users = await User.find({ role: 'client' }).select('-password');
+    res.status(200).json({
+        success: true,
+        users
+    });
+});
+
+// update user (Admin only)
+export const updateUser = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Prevent role escalation or password changes here if needed, 
+    // but for now, let's keep it simple as per gap analysis requirement
+    if (updateData.password) {
+        // Password update should ideally use a separate method to hash correctly
+        // but User.save() middleware handles it if password field is provided
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+
+    // Apply updates
+    Object.keys(updateData).forEach(key => {
+        user[key] = updateData[key];
+    });
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'User updated successfully',
+        user
+    });
+});
+
+// delete user (Admin only)
+export const deleteUser = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({
+        success: true,
+        message: 'User deleted successfully'
     });
 });
