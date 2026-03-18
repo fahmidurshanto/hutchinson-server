@@ -10,7 +10,7 @@ import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidity } from './controllers/investment.controller.js';
 import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.middleware.js';
-import { upload, uploadDocument, deleteDocument, viewDocument } from './controllers/document.controller.js';
+import { upload, uploadDocument, deleteDocument, viewDocument, getDocumentsByUser } from './controllers/document.controller.js';
 import { getEntities, getFinancialSummary, getServiceStatus } from './controllers/profile.controller.js';
 
 // Load environment variables
@@ -69,6 +69,7 @@ app.get('/api/v1/investment/get/:investmentId', isAuthenticated, getInvestmentBy
 
 // Route for Document
 app.post('/api/v1/document/upload', isAuthenticated, upload.single('file'), uploadDocument);
+app.get('/api/v1/document/user/:userId', isAuthenticated, isAdmin, getDocumentsByUser);
 app.get('/api/v1/document/view/:id', isAuthenticated, viewDocument);
 app.delete('/api/v1/document/delete/:id', isAuthenticated, isAdmin, deleteDocument);
 

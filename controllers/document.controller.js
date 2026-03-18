@@ -110,3 +110,20 @@ export const deleteDocument = catchAsync(async (req, res, next) => {
         message: 'Document deleted successfully'
     });
 });
+
+// Get all documents for a user
+export const getDocumentsByUser = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+        return next(new AppError('User ID is required', 400));
+    }
+
+    const documents = await Document.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+        success: true,
+        count: documents.length,
+        documents
+    });
+});

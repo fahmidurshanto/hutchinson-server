@@ -1,174 +1,167 @@
 **Base URL:** `http://localhost:4000/api/v1`
 
+# 👤 Users (Authentication & Profile)
+
+### Login
 **Route:** `/auth/login`  
 **Method** `POST`
-**Body** `{  "email":"palak1@gmail.com",  "password":12345678}`  
-**Response** {
-"success": true,
-"user": {
-"id": "69b2fe0f9f780f4730036dc5",
-"firstName": "Palak",
-"lastName": "Basak",
-"email": "palak1@gmail.com",
-"role": "admin",
-"iat": 1773514401,
-"exp": 1773515301
+**Body** `{  "email":"user@example.com",  "password": "yourpassword" }`  
+**Response** 
+```json
+{
+  "success": true,
+  "user": {
+    "id": "69b2fe0f9f780f4730036dc5",
+    "firstName": "Palak",
+    "lastName": "Basak",
+    "email": "palak1@gmail.com",
+    "role": "admin"
+  }
 }
-}
+```
 
-
+### Get My Profile
 **Route:** `/auth/me`  
 **Method** `GET`  
-**Response** {
-"success": true,
-"user": {
-"id": "69b2fe0f9f780f4730036dc5",
-"firstName": "Palak",
-"lastName": "Basak",
-"email": "palak1@gmail.com",
-"role": "admin",
-"iat": 1773514401,
-"exp": 1773515301
-}
-}
-
-**Route:** `/investment/get/69b47a926476d4c1c33c483a`
-**Method** `GET`  
-**Response** {
-"success": true,
-"investment": {
-"\_id": "69b47a926476d4c1c33c483a",
-"name": "test1 Investment",
-"year": 2026,
-"amount": 0,
-"isValid": true,
-"user": "69b2f9bb08c63d8e441fc9a6",
-"createdAt": "2026-03-13T20:58:58.168Z",
-"updatedAt": "2026-03-13T20:58:58.168Z",
-"\_\_v": 0
-}
-}
-
-**Route:** `investment/get?year=2027`
-**Method** `GET`
-**Body** `{  "userId":"69b2f9bb08c63d8e441fc9a6"}`  
-**Response** {
-"success": true,
-"investments": [
+**Response** 
+```json
 {
-"_id": "69b47ac06476d4c1c33c483d",
-"name": "test2 Investment",
-"year": 2027,
-"amount": 200,
-"isValid": true,
-"user": "69b2f9bb08c63d8e441fc9a6",
-"createdAt": "2026-03-13T20:59:44.165Z",
-"updatedAt": "2026-03-13T20:59:44.165Z",
-"__v": 0
-}
-]
-}
-
-**Route:** `/investment/create`
-**Method** `POST`
-**Body** `{  "name":"test2 Investment",  "year": 2027,  "amount": 200,  "user":"69b2f9bb08c63d8e441fc9a6"}`  
-**Response**{
-"success": true,
-"message": "Investment Created",
-"investment": {
-"name": "test2 Investment",
-"year": 2027,
-"amount": 200,
-"isValid": true,
-"user": "69b2f9bb08c63d8e441fc9a6",
-"\_id": "69b5b00bbda6b6e488816b39",
-"createdAt": "2026-03-14T18:59:23.189Z",
-"updatedAt": "2026-03-14T18:59:23.189Z",
-"\_\_v": 0
-}
-}
-
-**Route:** `/investment/validity`
-**Method** `POST`
-**Body** `{    "valid":false,   "investmentId":"69b5c9bb43096c3836a118f0"}`  
-**Response**{
-"success": true,
-"message": "Investment Created",
-"investment": {
-"name": "test2 Investment",
-"year": 2027,
-"amount": 200,
-"isValid": true,
-"user": "69b5b9ae880c493a71ca62dc",
-"\_id": "69b5c9bb43096c3836a118f0",
-"createdAt": "2026-03-14T20:48:59.015Z",
-"updatedAt": "2026-03-14T20:48:59.015Z",
-"\_\_v": 0
-}
-}
-
-**Route:** `/admin/changepassword`
-**Method** `POST`
-**Body** `{
-  "oldPassword": "123456",
-  "newPassword": "12345678"
-}
-`  
-**Response** {
-"success": true,
-"message": "Password changed successfully"
-}
-
-**Route:** `/auth/user/changepassword`
-**Method** `POST`
-**Body** `{
-  "userId": "69b5bc28f968882568b25ce7",
-  "newPassword": "123456"
-}
-`  
-**Response** {
-"success": true,
-"message": "Password changed successfully"
-}**Route:** `/auth/user/register`
-**Method** `POST`
-**Body** `{ "firstName": "John", "lastName": "Doe", "Phone": "12345678", "gender": "male", "email": "john@example.com", "nric": "S1234567A", "address": "123 Street", "nationality": "Singaporean", "password": "password123" }`
-**Response** {
   "success": true,
-  "message": "User registered successfully"
+  "user": {
+    "id": "...",
+    "firstName": "...",
+    "lastName": "...",
+    "email": "...",
+    "role": "..."
+  }
 }
+```
 
+### Logout
 **Route:** `/auth/logout`
 **Method** `GET`
-**Response** {
+**Response** 
+```json
+{
   "success": true,
   "message": "User logged out successfully"
 }
+```
 
+### Create Investment
+**Route:** `/investment/create`
+**Method** `POST`
+**Body** `{ "name": "test2 Investment", "year": 2027, "amount": 200, "user": "userId" }`  
+**Response**
+```json
+{
+  "success": true,
+  "message": "Investment Created",
+  "investment": { ... }
+}
+```
+
+---
+
+# 📄 Documents
+
+### Upload Document
 **Route:** `/document/upload`
 **Method** `POST`
-**Body** (form-data) `{ "file": (File), "userId": "69b2fe0f9f780f4730036dc5" }`
-**Response** {
+**Body** (form-data) `{ "file": (File), "userId": "userId" }`
+**Response** 
+```json
+{
   "success": true,
   "message": "Document uploaded successfully",
   "document": {
-    "name": "image-1710620000000.png",
-    "path": "uploads/image-1710620000000.png",
-    "user": "69b2fe0f9f780f4730036dc5",
-    "hasUserSeen": false,
-    "_id": "69b5d8a2bda6b6e488816b40",
-    "createdAt": "2026-03-17T02:00:00.000Z",
-    "updatedAt": "2026-03-17T02:00:00.000Z"
+    "name": "...",
+    "path": "...",
+    "user": "...",
+    "_id": "..."
   }
 }
+```
 
-**Route:** `/document/view/69b5d8a2bda6b6e488816b40`
+### View Document
+**Route:** `/document/view/:id`
 **Method** `GET`
-**Response** (Succeeds) -> *Binary stream of the file*
-**Response** (If seen already) -> { "success": false, "message": "You have already seen this document..." }
+**Response (Success)** -> Binary stream
+**Response (Error)** 
+```json
+{
+  "success": false,
+  "message": "Access Denied / Not Found"
+}
+```
 
-**Route:** `/document/delete/69b5d8a2bda6b6e488816b40`
+---
+
+# 🔐 Admin (Management)
+
+### Register New User
+**Route:** `/auth/user/register`
+**Method** `POST`
+**Body** `{ "firstName": "John", "lastName": "Doe", ... }`
+**Response** 
+```json
+{
+  "success": true,
+  "message": "User registered successfully"
+}
+```
+
+### Change Admin Password
+**Route:** `/admin/changepassword`
+**Method** `POST`
+**Body** `{ "oldPassword": "...", "newPassword": "..." }`  
+**Response** 
+```json
+{
+  "success": true,
+  "message": "Password changed successfully"
+}
+```
+
+### Change User Password by Admin
+**Route:** `/auth/user/changepassword`
+**Method** `POST`
+**Body** `{ "userId": "...", "newPassword": "..." }`  
+**Response** 
+```json
+{
+  "success": true,
+  "message": "Password changed successfully"
+}
+```
+
+### Get All Documents of a User
+**Route:** `/document/user/:userId`
+**Method** `GET`
+**Response** 
+```json
+{
+  "success": true,
+  "count": 2,
+  "documents": [
+    {
+      "_id": "...",
+      "name": "...",
+      "path": "...",
+      "user": "...",
+      "createdAt": "..."
+    }
+  ]
+}
+```
+
+### Delete Document
+**Route:** `/document/delete/:id`
 **Method** `DELETE`
-**Response** {
+**Response** 
+```json
+{
   "success": true,
   "message": "Document deleted successfully"
 }
+```
