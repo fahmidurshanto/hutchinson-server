@@ -3,6 +3,8 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import connectDB from './config/database.js';
+import fs from 'fs';
+import path from 'path';
 import { aboutMe, changeAdminPassword, changeUserPasswordByAdmin, login, logout, registerUser, getAllUsers, updateUser, deleteUser } from './controllers/user.controller.js';
 import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
@@ -30,6 +32,16 @@ app.use(morgan('dev'));
 
 // create db connection 
 connectDB();
+
+// Ensure uploads directory exists
+const uploadDir = path.join(process.cwd(), 'uploads');
+console.log(`🔍 Checking uploads directory at: ${uploadDir}`);
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('📁 Created uploads directory');
+} else {
+    console.log('✅ Uploads directory already exists');
+}
 
 app.get('/api/v1', (req, res) => res.status(200).json({
     success: true,
