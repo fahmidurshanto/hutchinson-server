@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser';
 import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidity } from './controllers/investment.controller.js';
 import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.middleware.js';
 import { upload, uploadDocument, deleteDocument, viewDocument, getDocumentsByUser } from './controllers/document.controller.js';
-import { getEntities, getFinancialSummary, getServiceStatus } from './controllers/profile.controller.js';
+import { getEntities, getFinancialSummary, getInvestmentReports, getServiceStatus } from './controllers/profile.controller.js';
 import { createSchedule, deleteSchedule, getCurrentWeekSchedules, getPastSchedules, getSchedulesByUser, getUpcomingSchedules } from './controllers/schedule.controller.js';
 
 // Load environment variables
@@ -76,6 +76,7 @@ app.delete('/api/v1/document/delete/:id', isAuthenticated, isAdmin, deleteDocume
 
 // Route for Profile Analytics
 app.get('/api/v1/user/financial-summary/:userId', isAuthenticated, getFinancialSummary);
+app.get('/api/v1/user/investment-reports/:userId', isAuthenticated, getInvestmentReports);
 app.get('/api/v1/user/entities/:userId', isAuthenticated, getEntities);
 app.get('/api/v1/user/services/:userId', isAuthenticated, getServiceStatus);
 

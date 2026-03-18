@@ -6,9 +6,9 @@ import catchAsync from "../utils/catchAsync.js";
 
 
 export const createInvestment = catchAsync(async (req, res) => {
-    const { name, year, amount, user } = req.body;
+    const { name, year, month, amount, user } = req.body;
 
-    if (!name || !year || !user) {
+    if (!name || !year || !month || !user) {
         throw new AppError("All fields are required")
     }
     const userExists = await User.findById(user);
@@ -16,7 +16,7 @@ export const createInvestment = catchAsync(async (req, res) => {
         throw new AppError('User not found', 404);
     }
 
-    const investment = await Investment.create({ name, year, user, amount });
+    const investment = await Investment.create({ name, year, month, user, amount });
     res.status(201).json({
         success: true,
         message: 'Investment Created',

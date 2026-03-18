@@ -70,3 +70,27 @@ export const getServiceStatus = catchAsync(async (req, res) => {
         data: services
     });
 });
+
+// Get Investment Reports grouped by year and month for a user
+export const getInvestmentReports = catchAsync(async (req, res) => {
+    const { userId } = req.params;
+
+    const investments = await Investment.find({ user: userId }).sort({ year: 1, createdAt: 1 });
+
+    const groupedData = investments.reduce((acc, inv) => {
+        const year = inv.year.toString();
+        if (!acc[year]) {
+            acc[year] = [];
+        }
+        acc[year].push({
+            month: inv.month,
+            amount: inv.amount
+        });
+        return acc;
+    }, {});
+
+    res.status(200).json({
+        success: true,
+        data: groupedData
+    });
+});

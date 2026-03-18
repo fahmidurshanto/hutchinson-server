@@ -10,6 +10,11 @@ const investmentSchema = new mongoose.Schema({
         required: [true, 'Year is required'],
         trim: true
     },
+    month: {
+        type: String,
+        required: [true, 'Month is required'],
+        trim: true
+    },
     amount: {
         type: Number,
         default: 0
