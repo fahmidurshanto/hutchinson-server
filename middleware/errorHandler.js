@@ -7,6 +7,13 @@ const errorHandler = (err, req, res, next) => {
     let message = 'Internal Server Error';
     let errors = [];
 
+     // JSON parse error (invalid JSON in request body)
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        statusCode = 400;
+        message = 'Invalid JSON payload';
+        errors = [err.message];
+    }
+
     // Mongoose duplicate key error (code 11000)
     if (err.code === 11000) {
         statusCode = 400;

@@ -165,3 +165,28 @@
   "message": "Document deleted successfully"
 }
 ```
+
+# Schedule
+
+### Create Schedule
+**Route:** `/schedule/create`
+**Method** `POST`
+**Body** `{  "title": "Doctor Appointment",  "time": "2026-03-19T08:00:00.000Z",  "type": "Personal",  "description": "Routine health checkup",  "userId":"69ba883af44b7a454764f68f"}` 
+**Response** 
+```json
+{
+  "success": true,
+  "message": "Schedule created successfully",
+  "data": {
+    "title": "Doctor Appointment",
+    "time": "2026-03-19T08:00:00.000Z",
+    "type": "Personal",
+    "description": "Routine health checkup",
+    "user": "69ba883af44b7a454764f68f",
+    "_id": "69bad1c66a32fe4a5af446c1",
+    "createdAt": "2026-03-18T16:24:38.777Z",
+    "updatedAt": "2026-03-18T16:24:38.777Z",
+    "__v": 0
+  }
+}
+```

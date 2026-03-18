@@ -12,6 +12,7 @@ import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidi
 import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.middleware.js';
 import { upload, uploadDocument, deleteDocument, viewDocument, getDocumentsByUser } from './controllers/document.controller.js';
 import { getEntities, getFinancialSummary, getServiceStatus } from './controllers/profile.controller.js';
+import { createSchedule, deleteSchedule, getCurrentWeekSchedules, getPastSchedules, getSchedulesByUser, getUpcomingSchedules } from './controllers/schedule.controller.js';
 
 // Load environment variables
 dotenv.config();
@@ -78,6 +79,13 @@ app.get('/api/v1/user/financial-summary/:userId', isAuthenticated, getFinancialS
 app.get('/api/v1/user/entities/:userId', isAuthenticated, getEntities);
 app.get('/api/v1/user/services/:userId', isAuthenticated, getServiceStatus);
 
+// Route for Schedule
+app.post('/api/v1/schedule/create', isAuthenticated, isAdmin, createSchedule);
+app.get('/api/v1/schedule/my', isAuthenticated, getSchedulesByUser);
+app.delete('/api/v1/schedule/:id', isAuthenticated, isAdmin, deleteSchedule);
+app.get('/api/v1/schedule/current-week', isAuthenticated, getCurrentWeekSchedules);
+app.get('/api/v1/schedule/upcoming', isAuthenticated, getUpcomingSchedules);
+app.get('/api/v1/schedule/past', isAuthenticated, getPastSchedules);
 
 
 //errorhandler
