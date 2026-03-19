@@ -34,8 +34,6 @@ export const login = catchAsync(async (req, res) => {
 
     const isMatch = await user.comparePassword(password.toString());
 
-    console.log(isMatch)
-
     if (!isMatch) {
         // Use consistent error handling – throw instead of returning a response
         throw new AppError('Invalid email or password', 401);
@@ -62,7 +60,7 @@ export const logout = catchAsync(async (req, res) => {
 export const aboutMe = catchAsync(async (req, res) => {
     const user = req.user;
     if (!user) {
-        throw new AppError("user not found", 400)
+        throw new AppError("Profile not found", 400)
     }
     return res.status(200).json({
         success: true,
