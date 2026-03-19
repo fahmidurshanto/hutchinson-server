@@ -1,6 +1,89 @@
 import Investment from "../models/investment.model.js";
+import User from "../models/user.model.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
+
+// Get memberships for a user
+export const getMemberships = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select('memberships');
+
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        data: user.memberships
+    });
+});
+
+// Get services for a user
+export const getUserServices = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select('services');
+
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        data: user.services
+    });
+});
+
+// Update membership status for a user
+export const updateMembershipStatus = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const { tierName, status } = req.body;
+
+    if (!tierName || !status) {
+        return next(new AppError('Please provide tierName and status', 400));
+    }
+
+    const user = await User.findOneAndUpdate(
+        { _id: userId, 'memberships.name': tierName },
+        { $set: { 'memberships.$.status': status.toLowerCase() } },
+        { new: true, runValidators: true }
+    );
+
+    if (!user) {
+        return next(new AppError('User or tier not found', 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        data: user.memberships
+    });
+});
+
+// Update service status for a user
+export const updateUserServiceStatus = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const { serviceName, status } = req.body;
+
+    if (!serviceName || !status) {
+        return next(new AppError('Please provide serviceName and status', 400));
+    }
+
+    const user = await User.findOneAndUpdate(
+        { _id: userId, 'services.name': serviceName },
+        { $set: { 'services.$.status': status } },
+        { new: true, runValidators: true }
+    );
+
+    if (!user) {
+        return next(new AppError('User or service not found', 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        data: user.services
+    });
+});
 
 // Get Financial Summary for a user
 export const getFinancialSummary = catchAsync(async (req, res) => {

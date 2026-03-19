@@ -25,7 +25,7 @@ export const createSchedule = catchAsync(async (req, res, next) => {
 
 export const getSchedulesByUser = catchAsync(async (req, res, next) => {
 
-    const userId = req.user._id; // from auth middleware
+    const userId = req.user.id || req.user._id; // handle both id and _id from auth middleware
 
     const schedules = await Schedule.find({ user: userId })
         .sort({ time: 1 }); // optional: sort by time
@@ -54,7 +54,7 @@ export const getCurrentWeekSchedules = catchAsync(async (req, res, next) => {
     endOfWeek.setHours(23, 59, 59, 999);
 
     const schedules = await Schedule.find({
-        user: req.user._id,
+        user: req.user.id || req.user._id,
         time: {
             $gte: startOfWeek,
             $lte: endOfWeek
@@ -77,7 +77,7 @@ export const getUpcomingSchedules = catchAsync(async (req, res, next) => {
     const now = new Date();
 
     const schedules = await Schedule.find({
-        user: req.user._id,
+        user: req.user.id || req.user._id,
         time: { $gt: now }
     }).sort({ time: 1 });
 
@@ -96,7 +96,7 @@ export const getPastSchedules = catchAsync(async (req, res, next) => {
     const now = new Date();
 
     const schedules = await Schedule.find({
-        user: req.user._id,
+        user: req.user.id || req.user._id,
         time: { $lt: now }
     }).sort({ time: -1 }); // latest past first
 

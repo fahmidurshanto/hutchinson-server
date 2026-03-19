@@ -1,6 +1,131 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
+// ─── Membership tier sub-schema ───────────────────────────────────────────────
+const membershipTierSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+            uppercase: true
+        },
+        type: {
+            type: String,
+            enum: ['primary', 'third_party'],
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ['active', 'inactive'],
+            default: 'inactive'
+        },
+        benefits: {
+            type: [String],
+            default: []
+        }
+    },
+    { _id: false }
+);
+
+// ─── User Service sub-schema ──────────────────────────────────────────────────
+const userServiceSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        status: {
+            type: String,
+            enum: ['Valid', 'Invalid'],
+            default: 'Valid'
+        }
+    },
+    { _id: false }
+);
+
+const defaultServices = [
+    { name: 'Termination', status: 'Valid' },
+    { name: 'Capital Gain tax', status: 'Valid' },
+    { name: 'Trustee fees', status: 'Valid' },
+    { name: 'Anti Money laundering', status: 'Valid' },
+    { name: 'Remittance', status: 'Valid' },
+    { name: 'Custody & services fees', status: 'Valid' }
+];
+
+const defaultMemberships = [
+    // ── Primary ───────────────────────────────────────────────────────────────
+    {
+        name: 'AMIHAN DEL SOL',
+        type: 'primary',
+        status: 'inactive',
+        benefits: ['Dedicated Asset Management', 'Direct Private Equity Access', 'Exclusive Concierge Services']
+    },
+    {
+        name: 'MTF (IAC)',
+        type: 'primary',
+        status: 'inactive',
+        benefits: ['Institutional Advisory', 'Trade Compliance Support', 'Risk Allocation Reports']
+    },
+    {
+        name: 'VACATION DOWN UNDER',
+        type: 'primary',
+        status: 'inactive',
+        benefits: ['Luxury Travel Desk', 'Global Resort Access', 'Premium Leisure Planning']
+    },
+    {
+        name: 'NIXDORF - AX VENTURES LIMITED',
+        type: 'primary',
+        status: 'inactive',
+        benefits: ['Venture Capital Insight', 'Seed Phase Opportunities', 'Strategic Tech Integration']
+    },
+    {
+        name: 'ASIAN TRAVEL CLUB',
+        type: 'primary',
+        status: 'inactive',
+        benefits: ['Regional Network Perks', 'Exclusive Gateway Access', 'Bespoke Itinerary Curation']
+    },
+    // ── Third Party ───────────────────────────────────────────────────────────
+    {
+        name: 'TEMPLETON TRUSTEE',
+        type: 'third_party',
+        status: 'inactive',
+        benefits: ['Asset Liquidation Planning', 'Trustee Oversight', 'Fiduciary Compliance']
+    },
+    {
+        name: 'AX HOLDINGS LIMITED',
+        type: 'third_party',
+        status: 'inactive',
+        benefits: ['Portfolio Management', 'Holding Optimization', 'Group Strategy Access']
+    },
+    {
+        name: 'ASIALINX PTE LTD',
+        type: 'third_party',
+        status: 'inactive',
+        benefits: ['Cross-Border Facilitation', 'Logistics Optimization', 'Regional Trade Advisory']
+    },
+    {
+        name: 'AX VENTURES LIMITED',
+        type: 'third_party',
+        status: 'inactive',
+        benefits: ['Emerging Market Access', 'Direct Investment Rounds', 'Innovation Mentorship']
+    },
+    {
+        name: 'NIXDORF PTE LTD',
+        type: 'third_party',
+        status: 'inactive',
+        benefits: ['Market Intelligence', 'Operations Consulting', 'Local Implementation Support']
+    },
+    {
+        name: 'NIXDAX PTE LTD',
+        type: 'third_party',
+        status: 'inactive',
+        benefits: ['Digital Asset Strategy', 'Platform Synergies', 'Next-Gen FinTech Access']
+    }
+];
+
+// ─── User schema ──────────────────────────────────────────────────────────────
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -37,6 +162,11 @@ const userSchema = new mongoose.Schema({
         unique: true,             // already unique
         trim: true
     },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'pending', 'suspended'],
+        default: 'pending'
+    },
     address: {
         type: String,
         required: [true, 'Address is required'],
@@ -55,7 +185,15 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['client', 'admin'],
-        default: 'client'           // not required – defaults to 'user'
+        default: 'client'           // not required – defaults to 'client'
+    },
+    memberships: {
+        type: [membershipTierSchema],
+        default: defaultMemberships
+    },
+    services: {
+        type: [userServiceSchema],
+        default: defaultServices
     }
 }, { timestamps: true });
 
