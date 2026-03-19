@@ -26,21 +26,27 @@ export const registerUser = catchAsync(async (req, res) => {
 // login user and get token
 export const login = catchAsync(async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    console.log(`🔐 Login attempt for email: ${email}`);
 
+    const user = await User.findOne({ email });
     if (!user) {
+        console.log(`❌ User not found for email: ${email}`);
         throw new AppError('Invalid email or password', 400);
     }
 
+    console.log(`✅ User found: ${user._id}`);
     const isMatch = await user.comparePassword(password.toString());
 
     if (!isMatch) {
-        // Use consistent error handling – throw instead of returning a response
+        console.log(`❌ Password mismatch for user: ${user._id}`);
         throw new AppError('Invalid email or password', 401);
     }
 
+    console.log(`✅ Password verified for user: ${user._id}`);
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user._id);
+
+    console.log(`🚀 Generating tokens and setting cookies for user: ${user._id}`);
     setAuthCookies(req, res, accessToken, refreshToken, 'User logged in successfully', 200);
 });
 

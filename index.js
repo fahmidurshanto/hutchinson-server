@@ -15,9 +15,18 @@ import scheduleRoutes from './routes/schedule.route.js';
 import investmentRoutes from './routes/investment.route.js';
 
 // Load environment variables
-dotenv.config();
+console.log(`📂 Current Working Directory: ${process.cwd()}`);
+const envPath = path.join(process.cwd(), '.env');
+if (fs.existsSync(envPath)) {
+    console.log('📝 Found .env file, loading...');
+    dotenv.config({ path: envPath });
+} else {
+    console.log('⚠️  .env file NOT found at:', envPath);
+    dotenv.config(); // Fallback to default behavior
+}
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (e.g. Nginx, Cloudflare)
 const PORT = process.env.PORT || 8000;
 
 // Middleware
@@ -31,19 +40,6 @@ app.use(cookieParser());
 app.use(morgan('dev'));
 // app.use('/uploads', express.static('uploads')); // Removed to prevent public access
 
-// create db connection 
-connectDB();
-
-// Ensure uploads directory exists
-const uploadDir = path.join(process.cwd(), 'uploads');
-console.log(`🔍 Checking uploads directory at: ${uploadDir}`);
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-    console.log('📁 Created uploads directory');
-} else {
-    console.log('✅ Uploads directory already exists');
-}
-
 app.get('/api/v1', (req, res) => res.status(200).json({
     success: true,
     message: 'Api is LIVE'
@@ -56,10 +52,32 @@ app.use('/api/v1/user', profileRoutes);
 app.use('/api/v1/schedule', scheduleRoutes);
 app.use('/api/v1/investment', investmentRoutes);
 
-
 //errorhandler
 app.use(errorHandler);
-// Start the server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-});
+
+// create db connection 
+const startServer = async () => {
+    try {
+        await connectDB();
+
+        // Ensure uploads directory exists
+        const uploadDir = path.join(process.cwd(), 'uploads');
+        console.log(`🔍 Checking uploads directory at: ${uploadDir}`);
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+            console.log('📁 Created uploads directory');
+        } else {
+            console.log('✅ Uploads directory already exists');
+        }
+
+        // Start the server
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('❌ Server startup failed:', error);
+        process.exit(1);
+    }
+};
+
+startServer();

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // ─── Membership tier sub-schema ───────────────────────────────────────────────
 const membershipTierSchema = new mongoose.Schema(

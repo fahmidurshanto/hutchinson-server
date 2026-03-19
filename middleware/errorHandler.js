@@ -43,11 +43,13 @@ const errorHandler = (err, req, res, next) => {
         message = err.message;
     }
 
-    // Clear cookies if unauthorized
+/* 
+    // Clear cookies if unauthorized (Removed as per request to prevent logout on reload/check)
     if (statusCode === 401) {
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
     }
+    */
 
     // Send response
     res.status(statusCode).json({
