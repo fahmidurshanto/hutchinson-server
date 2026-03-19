@@ -23,5 +23,7 @@ const documentSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+documentSchema.index({ user: 1 });
+
 const Document = mongoose.model('document', documentSchema);
 export default Document;

@@ -33,5 +33,7 @@ const investmentSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+investmentSchema.index({ user: 1, year: -1 });
+
 const Investment = mongoose.model('investment', investmentSchema);
 export default Investment;

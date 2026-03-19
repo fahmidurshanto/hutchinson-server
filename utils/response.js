@@ -22,7 +22,7 @@ export const setAuthCookies = (req, res, accessToken, refreshToken, message = 'S
 
     const baseOptions = {
         httpOnly: true,
-        secure: req.secure || req.protocol === 'https',
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
     };
 
@@ -64,13 +64,13 @@ export const clearCookie = (res, message = 'Logged out successfully', statusCode
     res.cookie('accessToken', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         expires: new Date(0) // Set expiration to the past
     });
     res.cookie('refreshToken', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         expires: new Date(0) // Set expiration to the past
     });
 
