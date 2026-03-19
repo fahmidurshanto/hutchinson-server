@@ -5,14 +5,14 @@ import cors from 'cors';
 import connectDB from './config/database.js';
 import fs from 'fs';
 import path from 'path';
-import { aboutMe, changeAdminPassword, changeUserPasswordByAdmin, login, logout, registerUser, getAllUsers, updateUser, deleteUser } from './controllers/user.controller.js';
 import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
-import { createInvestment, getInvestment, getInvestmentById, setInvestmentValidity } from './controllers/investment.controller.js';
-import { isAuthenticated, isAdmin, setAccessCookie } from './middleware/auth.middleware.js';
-import { upload, uploadDocument, deleteDocument, viewDocument, getDocumentsByUser } from './controllers/document.controller.js';
-import { getEntities, getFinancialSummary, getInvestmentReports, getServiceStatus } from './controllers/profile.controller.js';
-import { createSchedule, deleteSchedule, getCurrentWeekSchedules, getPastSchedules, getSchedulesByUser, getUpcomingSchedules } from './controllers/schedule.controller.js';
+
+import authRoutes from './routes/auth.route.js';
+import documentRoutes from './routes/document.route.js';
+import profileRoutes from './routes/profile.route.js';
+import scheduleRoutes from './routes/schedule.route.js';
+import investmentRoutes from './routes/investment.route.js';
 
 // Load environment variables
 dotenv.config();
@@ -49,44 +49,12 @@ app.get('/api/v1', (req, res) => res.status(200).json({
     message: 'Api is LIVE'
 }));
 
-// Routes for User
-app.post('/api/v1/auth/user/register', isAuthenticated, isAdmin, registerUser);
-app.post('/api/v1/auth/user/changepassword', isAuthenticated, isAdmin, changeUserPasswordByAdmin);
-app.post('/api/v1/auth/admin/changepassword', isAuthenticated, isAdmin, changeAdminPassword);
-app.post('/api/v1/auth/login', login);
-app.get('/api/v1/auth/logout', isAuthenticated, logout);
-app.get('/api/v1/auth/me', isAuthenticated, aboutMe);
-
-// Added User Management Routes
-app.get('/api/v1/auth/users', isAuthenticated, isAdmin, getAllUsers);
-app.patch('/api/v1/auth/user/:id', isAuthenticated, isAdmin, updateUser);
-app.delete('/api/v1/auth/user/:id', isAuthenticated, isAdmin, deleteUser);
-
-// Route for Investment
-app.post('/api/v1/investment/create', isAuthenticated, createInvestment);
-app.post('/api/v1/investment/validity', isAuthenticated, setInvestmentValidity);
-app.get('/api/v1/investment/get', isAuthenticated, getInvestment);   // search by userId(body) with year(query)
-app.get('/api/v1/investment/get/:investmentId', isAuthenticated, getInvestmentById);  // search by investmentId [ex: investmentId=69b47a926476d4c1c33c483a]
-
-// Route for Document
-app.post('/api/v1/document/upload', isAuthenticated, upload.single('file'), uploadDocument);
-app.get('/api/v1/document/user/:userId', isAuthenticated, isAdmin, getDocumentsByUser);
-app.get('/api/v1/document/view/:id', isAuthenticated, viewDocument);
-app.delete('/api/v1/document/delete/:id', isAuthenticated, isAdmin, deleteDocument);
-
-// Route for Profile Analytics
-app.get('/api/v1/user/financial-summary/:userId', isAuthenticated, getFinancialSummary);
-app.get('/api/v1/user/investment-reports/:userId', isAuthenticated, getInvestmentReports);
-app.get('/api/v1/user/entities/:userId', isAuthenticated, getEntities);
-app.get('/api/v1/user/services/:userId', isAuthenticated, getServiceStatus);
-
-// Route for Schedule
-app.post('/api/v1/schedule/create', isAuthenticated, isAdmin, createSchedule);
-app.get('/api/v1/schedule/my', isAuthenticated, getSchedulesByUser);
-app.delete('/api/v1/schedule/:id', isAuthenticated, isAdmin, deleteSchedule);
-app.get('/api/v1/schedule/current-week', isAuthenticated, getCurrentWeekSchedules);
-app.get('/api/v1/schedule/upcoming', isAuthenticated, getUpcomingSchedules);
-app.get('/api/v1/schedule/past', isAuthenticated, getPastSchedules);
+// Mount Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/document', documentRoutes);
+app.use('/api/v1/user', profileRoutes);
+app.use('/api/v1/schedule', scheduleRoutes);
+app.use('/api/v1/investment', investmentRoutes);
 
 
 //errorhandler

@@ -16,9 +16,11 @@ const documentSchema = new mongoose.Schema({
     hasUserSeen: {
         type: Boolean,
         default: false
+    },
+    size: {
+        type: String,
+        default: 'N/A'
     }
-
-
 }, { timestamps: true });
 
 const Document = mongoose.model('document', documentSchema);

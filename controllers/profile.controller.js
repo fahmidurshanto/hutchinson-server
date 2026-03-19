@@ -94,3 +94,40 @@ export const getInvestmentReports = catchAsync(async (req, res) => {
         data: groupedData
     });
 });
+
+// Admin: Create or update an investment report for a specific user, year, and month
+export const createOrUpdateInvestmentReport = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+
+    const { year, month, amount } = req.body;
+
+    if (!year || !month || amount === undefined) {
+        return next(new AppError('Please provide year, month, and amount.', 400));
+    }
+
+    // Try to find if an investment for this user/year/month already exists
+    let investment = await Investment.findOne({ user: userId, year, month });
+
+    if (investment) {
+        // Update existing
+        investment.amount = Number(amount);
+        await investment.save();
+    } else {
+        // Create new
+        investment = await Investment.create({
+            name: 'Monthly Investment',
+            year,
+            month,
+            amount: Number(amount),
+            isValid: true,
+            user: userId
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Investment report updated successfully',
+        data: investment
+    });
+});
+

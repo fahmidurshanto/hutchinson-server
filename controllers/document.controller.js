@@ -21,6 +21,15 @@ const storage = multer.diskStorage({
 
 export const upload = multer({ storage: storage });
 
+// Helper: convert bytes to readable size
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+
 // Upload document controller
 export const uploadDocument = catchAsync(async (req, res, next) => {
     if (!req.file) {
@@ -40,9 +49,10 @@ export const uploadDocument = catchAsync(async (req, res, next) => {
     }
 
     const document = await Document.create({
-        name: req.file.filename,
+        name: req.file.originalname || req.file.filename,
         path: req.file.path,
-        user: userId
+        user: userId,
+        size: formatFileSize(req.file.size)
     });
 
     res.status(201).json({
@@ -111,12 +121,20 @@ export const deleteDocument = catchAsync(async (req, res, next) => {
     });
 });
 
-// Get all documents for a user
+// Get all documents for a user (Admin for any user, User for themselves)
 export const getDocumentsByUser = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
 
     if (!userId) {
         return next(new AppError('User ID is required', 400));
+    }
+
+    // Allow if admin OR if the user is requesting their own documents
+    const isAdmin = req.user.role === 'admin';
+    const isOwner = String(req.user.id) === String(userId);
+
+    if (!isAdmin && !isOwner) {
+        return next(new AppError('You do not have permission to view these documents', 403));
     }
 
     const documents = await Document.find({ user: userId }).sort({ createdAt: -1 });

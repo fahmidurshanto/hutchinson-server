@@ -130,3 +130,31 @@ export const deleteSchedule = catchAsync(async (req, res, next) => {
     });
 
 });
+
+// Admin: get all schedules for any user by userId param
+export const getSchedulesByUserAdmin = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+
+    const schedules = await Schedule.find({ user: userId })
+        .sort({ time: 1 });
+
+    res.status(200).json({
+        success: true,
+        count: schedules.length,
+        data: schedules
+    });
+});
+
+// Admin: get literally all schedules across all users
+export const getAllSchedulesAdmin = catchAsync(async (req, res, next) => {
+    const schedules = await Schedule.find()
+        .populate('user', 'firstName lastName name email')
+        .sort({ time: 1 });
+
+    res.status(200).json({
+        success: true,
+        count: schedules.length,
+        data: schedules
+    });
+});
+
