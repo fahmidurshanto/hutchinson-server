@@ -277,3 +277,66 @@ export const removeMembership = catchAsync(async (req, res, next) => {
         data: user.memberships
     });
 });
+
+// Add service to a user
+export const addUserService = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const { serviceName } = req.body;
+
+    if (!serviceName) {
+        return next(new AppError('Please provide serviceName', 400));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    // Check if service already exists
+    const serviceExists = user.services.find(
+        (s) => s.name.toLowerCase() === serviceName.toLowerCase()
+    );
+
+    if (serviceExists) {
+        return next(new AppError('Service already exists on this user profile', 400));
+    }
+
+    // Append new service
+    user.services.push({ name: serviceName, status: 'Valid' });
+    await user.save();
+
+    res.status(201).json({
+        success: true,
+        message: 'Service added successfully',
+        data: user.services
+    });
+});
+
+// Remove service from a user
+export const removeUserService = catchAsync(async (req, res, next) => {
+    const { userId, serviceName } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    const initialLength = user.services.length;
+
+    // Filter out the specific service
+    user.services = user.services.filter(
+        (s) => s.name.toLowerCase() !== serviceName.toLowerCase()
+    );
+
+    if (user.services.length === initialLength) {
+        return next(new AppError('Service not found on user profile', 404));
+    }
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Service removed successfully',
+        data: user.services
+    });
+});

@@ -10,7 +10,9 @@ import {
     addMembership,
     removeMembership,
     getUserServices,
-    updateUserServiceStatus
+    updateUserServiceStatus,
+    addUserService,
+    removeUserService
 } from '../controllers/profile.controller.js';
 import { isAuthenticated, isAdmin } from '../middleware/auth.middleware.js';
 
@@ -24,6 +26,8 @@ router.get('/entities/:userId', isAuthenticated, getEntities);
 router.get('/services/:userId', isAuthenticated, getServiceStatus);
 router.get('/user-services/:userId', isAuthenticated, getUserServices);
 router.patch('/user-services/:userId', isAuthenticated, isAdmin, updateUserServiceStatus);
+router.post('/user-services/:userId', isAuthenticated, isAdmin, addUserService);
+router.delete('/user-services/:userId/:serviceName', isAuthenticated, isAdmin, removeUserService);
 router.get('/memberships/:userId', isAuthenticated, getMemberships);
 router.patch('/memberships/:userId', isAuthenticated, isAdmin, updateMembershipStatus);
 router.post('/memberships/:userId', isAuthenticated, isAdmin, addMembership);
