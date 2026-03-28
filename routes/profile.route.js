@@ -7,6 +7,8 @@ import {
     getEntities,
     getMemberships,
     updateMembershipStatus,
+    addMembership,
+    removeMembership,
     getUserServices,
     updateUserServiceStatus
 } from '../controllers/profile.controller.js';
@@ -24,5 +26,7 @@ router.get('/user-services/:userId', isAuthenticated, getUserServices);
 router.patch('/user-services/:userId', isAuthenticated, isAdmin, updateUserServiceStatus);
 router.get('/memberships/:userId', isAuthenticated, getMemberships);
 router.patch('/memberships/:userId', isAuthenticated, isAdmin, updateMembershipStatus);
+router.post('/memberships/:userId', isAuthenticated, isAdmin, addMembership);
+router.delete('/memberships/:userId/:tierName', isAuthenticated, isAdmin, removeMembership);
 
 export default router;

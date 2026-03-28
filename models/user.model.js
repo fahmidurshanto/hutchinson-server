@@ -54,77 +54,6 @@ const defaultServices = [
     { name: 'Custody & services fees', status: 'Valid' }
 ];
 
-const defaultMemberships = [
-    // ── Primary ───────────────────────────────────────────────────────────────
-    {
-        name: 'AMIHAN DEL SOL',
-        type: 'primary',
-        status: 'inactive',
-        benefits: ['Dedicated Asset Management', 'Direct Private Equity Access', 'Exclusive Concierge Services']
-    },
-    {
-        name: 'MTF (IAC)',
-        type: 'primary',
-        status: 'inactive',
-        benefits: ['Institutional Advisory', 'Trade Compliance Support', 'Risk Allocation Reports']
-    },
-    {
-        name: 'VACATION DOWN UNDER',
-        type: 'primary',
-        status: 'inactive',
-        benefits: ['Luxury Travel Desk', 'Global Resort Access', 'Premium Leisure Planning']
-    },
-    {
-        name: 'NIXDORF - AX VENTURES LIMITED',
-        type: 'primary',
-        status: 'inactive',
-        benefits: ['Venture Capital Insight', 'Seed Phase Opportunities', 'Strategic Tech Integration']
-    },
-    {
-        name: 'ASIAN TRAVEL CLUB',
-        type: 'primary',
-        status: 'inactive',
-        benefits: ['Regional Network Perks', 'Exclusive Gateway Access', 'Bespoke Itinerary Curation']
-    },
-    // ── Third Party ───────────────────────────────────────────────────────────
-    {
-        name: 'TEMPLETON TRUSTEE',
-        type: 'third_party',
-        status: 'inactive',
-        benefits: ['Asset Liquidation Planning', 'Trustee Oversight', 'Fiduciary Compliance']
-    },
-    {
-        name: 'AX HOLDINGS LIMITED',
-        type: 'third_party',
-        status: 'inactive',
-        benefits: ['Portfolio Management', 'Holding Optimization', 'Group Strategy Access']
-    },
-    {
-        name: 'ASIALINX PTE LTD',
-        type: 'third_party',
-        status: 'inactive',
-        benefits: ['Cross-Border Facilitation', 'Logistics Optimization', 'Regional Trade Advisory']
-    },
-    {
-        name: 'AX VENTURES LIMITED',
-        type: 'third_party',
-        status: 'inactive',
-        benefits: ['Emerging Market Access', 'Direct Investment Rounds', 'Innovation Mentorship']
-    },
-    {
-        name: 'NIXDORF PTE LTD',
-        type: 'third_party',
-        status: 'inactive',
-        benefits: ['Market Intelligence', 'Operations Consulting', 'Local Implementation Support']
-    },
-    {
-        name: 'NIXDAX PTE LTD',
-        type: 'third_party',
-        status: 'inactive',
-        benefits: ['Digital Asset Strategy', 'Platform Synergies', 'Next-Gen FinTech Access']
-    }
-];
-
 // ─── User schema ──────────────────────────────────────────────────────────────
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -189,7 +118,7 @@ const userSchema = new mongoose.Schema({
     },
     memberships: {
         type: [membershipTierSchema],
-        default: defaultMemberships
+        default: []
     },
     services: {
         type: [userServiceSchema],

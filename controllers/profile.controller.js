@@ -214,3 +214,66 @@ export const createOrUpdateInvestmentReport = catchAsync(async (req, res, next) 
     });
 });
 
+// Add membership to a user
+export const addMembership = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const membership = req.body.membership || req.body;
+    
+    // Check if membership object exists in body
+    if (!membership || !membership.name || !membership.type) {
+        return next(new AppError('Please provide membership name and type', 400));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    // Check if membership already exists on user profile to prevent duplicates
+    const membershipExists = user.memberships.find(
+        (m) => m.name.toUpperCase() === membership.name.toUpperCase()
+    );
+
+    if (membershipExists) {
+        return next(new AppError('Membership already exists on this user profile', 400));
+    }
+
+    // Append new membership
+    user.memberships.push(membership);
+    await user.save();
+
+    res.status(201).json({
+        success: true,
+        message: 'Membership added successfully',
+        data: user.memberships
+    });
+});
+
+// Remove membership from a user
+export const removeMembership = catchAsync(async (req, res, next) => {
+    const { userId, tierName } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    const initialLength = user.memberships.length;
+    
+    // Standard filter logic to remove the specific membership
+    user.memberships = user.memberships.filter(
+        (m) => m.name.toUpperCase() !== tierName.toUpperCase()
+    );
+
+    if (user.memberships.length === initialLength) {
+        return next(new AppError('Membership tier not found on user profile', 404));
+    }
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Membership removed successfully',
+        data: user.memberships
+    });
+});
