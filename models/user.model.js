@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { encryptText, decryptText } from '../utils/encryption.js';
 
 // ─── Membership tier sub-schema ───────────────────────────────────────────────
 const membershipTierSchema = new mongoose.Schema(
@@ -126,13 +126,11 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Hash password before saving
+// Encrypt password before saving
 userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
     try {
-        const saltRounds = parseInt(process.env.SALT_ROUNDS) || 10;
-        const salt = await bcrypt.genSalt(saltRounds);
-        this.password = await bcrypt.hash(this.password, salt);
+        this.password = encryptText(this.password);
     } catch (error) {
         throw error;
     }
@@ -140,7 +138,12 @@ userSchema.pre('save', async function () {
 
 // Method to compare passwords
 userSchema.methods.comparePassword = async function (candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+    try {
+        const decryptedStoredPassword = decryptText(this.password);
+        return candidatePassword === decryptedStoredPassword;
+    } catch (error) {
+        return false;
+    }
 };
 
 const User = mongoose.model('User', userSchema);
