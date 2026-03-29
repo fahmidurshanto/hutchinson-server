@@ -7,7 +7,7 @@ import { decodeToken, generateAccessToken, generateRefreshToken } from '../utils
 
 
 export const registerUser = catchAsync(async (req, res) => {
-    const { firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail } = req.body;
+    const { firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail, status } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -16,7 +16,7 @@ export const registerUser = catchAsync(async (req, res) => {
     }
 
     // Create new user (role defaults to 'user' from schema)
-    await User.create({ firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail });
+    await User.create({ firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail, status });
 
     res.status(201).json({
         success: true,
