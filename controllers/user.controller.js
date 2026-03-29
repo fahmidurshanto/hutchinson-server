@@ -65,7 +65,7 @@ export const logout = catchAsync(async (req, res) => {
 
 // get all users
 export const aboutMe = catchAsync(async (req, res) => {
-    const user = req.user;
+    const user = await User.findById(req.user.id);
     if (!user) {
         throw new AppError("Profile not found", 400)
     }
@@ -73,7 +73,6 @@ export const aboutMe = catchAsync(async (req, res) => {
         success: true,
         user
     });
-
 });
 
 
