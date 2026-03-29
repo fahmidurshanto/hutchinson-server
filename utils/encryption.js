@@ -28,11 +28,25 @@ export function encryptText(text) {
  * @returns {string} - The original plain text.
  */
 export function decryptText(encryptedText) {
+  if (!encryptedText || typeof encryptedText !== 'string' || !encryptedText.includes(':')) {
+    return encryptedText;
+  }
+
   const textParts = encryptedText.split(':');
-  const iv = Buffer.from(textParts.shift(), 'hex');
-  const encryptedData = Buffer.from(textParts.join(':'), 'hex');
-  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
-  let decrypted = decipher.update(encryptedData);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted.toString();
+  if (textParts.length < 2) return encryptedText;
+
+  const ivHex = textParts.shift();
+  if (ivHex.length !== IV_LENGTH * 2) return encryptedText;
+
+  try {
+    const iv = Buffer.from(ivHex, 'hex');
+    const encryptedData = Buffer.from(textParts.join(':'), 'hex');
+    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
+    let decrypted = decipher.update(encryptedData);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+  } catch (error) {
+    // If decryption fails, it might be a regular hash or different format
+    return encryptedText;
+  }
 }

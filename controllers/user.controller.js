@@ -1,12 +1,13 @@
 import User from '../models/user.model.js';
 import AppError from '../utils/appError.js';
+import { decryptText } from '../utils/encryption.js';
 import catchAsync from '../utils/catchAsync.js';
 import { clearCookie, setAuthCookies } from '../utils/response.js';
 import { decodeToken, generateAccessToken, generateRefreshToken } from '../utils/token.js';
 
 
 export const registerUser = catchAsync(async (req, res) => {
-    const { firstName, lastName, Phone, gender, email, nric, address, nationality, password } = req.body;
+    const { firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -15,7 +16,7 @@ export const registerUser = catchAsync(async (req, res) => {
     }
 
     // Create new user (role defaults to 'user' from schema)
-    await User.create({ firstName, lastName, Phone, gender, email, nric, address, nationality, password });
+    await User.create({ firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail });
 
     res.status(201).json({
         success: true,
@@ -120,10 +121,24 @@ export const changeUserPasswordByAdmin = catchAsync(async (req, res) => {
 });
 // get all users (Admin only)
 export const getAllUsers = catchAsync(async (req, res) => {
-    const users = await User.find({ role: 'client' }).select('-password');
+    const users = await User.find({ role: 'client' });
+
+    const decryptedUsers = users.map(user => {
+        const userObj = user.toObject();
+        try {
+            if (user.password) {
+                userObj.password = decryptText(user.password);
+            }
+        } catch (error) {
+            console.error(`Error decrypting password for user ${user._id}:`, error);
+            userObj.password = 'Error decrypting';
+        }
+        return userObj;
+    });
+
     res.status(200).json({
         success: true,
-        users
+        users: decryptedUsers
     });
 });
 
@@ -146,6 +161,10 @@ export const updateUser = catchAsync(async (req, res) => {
 
     // Apply updates
     Object.keys(updateData).forEach(key => {
+        // Only update if the value is not an empty string for optional fields
+        if (['secondaryPhone', 'secondaryEmail', 'password', 'email'].includes(key) && updateData[key] === '') {
+            return;
+        }
         user[key] = updateData[key];
     });
 

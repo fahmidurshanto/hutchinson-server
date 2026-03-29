@@ -106,6 +106,16 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Nationality is required'],
         trim: true
     },
+    secondaryEmail: {
+        type: String,
+        lowercase: true,
+        trim: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please enter a valid secondary email']
+    },
+    secondaryPhone: {
+        type: String,
+        trim: true
+    },
     password: {
         type: String,
         required: [true, 'Password is required'],
