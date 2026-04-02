@@ -65,19 +65,25 @@ export const updateUserServiceStatus = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
     const { serviceName, status } = req.body;
 
-    if (!serviceName || !status) {
-        return next(new AppError('Please provide serviceName and status', 400));
+    if (!serviceName) {
+        return next(new AppError('Please provide serviceName', 400));
     }
 
-    const user = await User.findOneAndUpdate(
-        { _id: userId, 'services.name': serviceName },
-        { $set: { 'services.$.status': status } },
-        { new: true, runValidators: true }
-    );
-
+    const user = await User.findById(userId);
     if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    const service = user.services.find(s => s.name === serviceName);
+    if (!service) {
         return next(new AppError('User or service not found', 404));
     }
+
+    // Use provided status or toggle if not provided
+    const newStatus = status || (service.status === 'Valid' ? 'Invalid' : 'Valid');
+    service.status = newStatus;
+
+    await user.save();
 
     res.status(200).json({
         success: true,

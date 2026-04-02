@@ -80,7 +80,7 @@ export const viewDocument = catchAsync(async (req, res, next) => {
 
     // Check if owner has already seen it
     if (isOwner && !isAdmin && document.hasUserSeen) {
-        return next(new AppError('You have already seen this document once. Access is no longer allowed.', 403));
+        return next(new AppError('You cannot see a document more than once', 403));
     }
 
     // Resolve absolute path for res.sendFile
