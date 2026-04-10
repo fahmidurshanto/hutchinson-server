@@ -96,7 +96,7 @@ export const getFinancialSummary = catchAsync(async (req, res) => {
     const { userId } = req.params;
 
     const investments = await Investment.find({ user: userId });
-    
+
     const summary = investments.map(inv => ({
         label: inv.name.toUpperCase(),
         value: `USD ${inv.amount.toLocaleString()}`
@@ -114,9 +114,9 @@ export const getFinancialSummary = catchAsync(async (req, res) => {
 // Get Entities for a user
 export const getEntities = catchAsync(async (req, res) => {
     const { userId } = req.params;
-    
+
     const investments = await Investment.find({ user: userId });
-    
+
     // In a real app, entities might be a separate model. 
     // For now, we'll derive them from investment names as a fallback.
     const primary = investments.map(inv => ({
@@ -224,7 +224,7 @@ export const createOrUpdateInvestmentReport = catchAsync(async (req, res, next) 
 export const addMembership = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
     const membership = req.body.membership || req.body;
-    
+
     // Check if membership object exists in body
     if (!membership || !membership.name || !membership.type) {
         return next(new AppError('Please provide membership name and type', 400));
@@ -265,7 +265,7 @@ export const removeMembership = catchAsync(async (req, res, next) => {
     }
 
     const initialLength = user.memberships.length;
-    
+
     // Standard filter logic to remove the specific membership
     user.memberships = user.memberships.filter(
         (m) => m.name.toUpperCase() !== tierName.toUpperCase()
@@ -346,3 +346,6 @@ export const removeUserService = catchAsync(async (req, res, next) => {
         data: user.services
     });
 });
+
+
+

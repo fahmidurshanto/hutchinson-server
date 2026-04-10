@@ -134,11 +134,21 @@ const userSchema = new mongoose.Schema({
         type: [userServiceSchema],
         default: defaultServices
     },
+    stageVisibility: {
+        type: Boolean,
+        default: false
+    },
     stage: {
         type: [
             {
+                sequence: { type: Number },
                 name: { type: String, required: true },
-                completed: { type: Boolean, default: false }
+                remark: { type: String },
+                remarkLabel: { type: String },
+                status: { type: String, enum: ['upcoming', 'processed', 'active'], default: 'upcoming' },
+                _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+                description: { type: String, required: true },
+                time: { type: Date, default: Date.now },
             }
         ],
     }

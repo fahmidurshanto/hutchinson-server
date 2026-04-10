@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-// import dns from "dns";
+import dns from "dns";
 
 const connectDB = async () => {
     try {
         // Set DNS servers to public ones to resolve SRV records on some local networks
-        // dns.setServers(['8.8.8.8', '1.1.1.1']);
+        dns.setServers(['8.8.8.8', '1.1.1.1']);
 
         const uri = process.env.MONGO_URI || 'mongodb://admin:password@localhost:27017/mydb?authSource=admin';
 

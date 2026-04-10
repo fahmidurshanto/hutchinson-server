@@ -33,4 +33,6 @@ router.patch('/memberships/:userId', isAuthenticated, isAdmin, updateMembershipS
 router.post('/memberships/:userId', isAuthenticated, isAdmin, addMembership);
 router.delete('/memberships/:userId/:tierName', isAuthenticated, isAdmin, removeMembership);
 
+
+
 export default router;
