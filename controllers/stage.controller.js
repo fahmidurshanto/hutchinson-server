@@ -12,12 +12,13 @@ const stageJsonPath = path.join(__dirname, '../store/stage.json');
 
 const qrCodeData = "1234567890"
 
-export const getQRCode = catchAsync(async (req, res, next) => {
+export const generateQRCode = catchAsync(async (req, res, next) => {
     // The URL that will be encoded in the QR code
-    const qrCodeUrl = `http://localhost:4000/api/v1/stage/qrcode/verify?id=${qrCodeData}`;
+    const { userId } = req.params;
 
+    const qrCodeUrl = `${process.env.FRONTEND_URL}/verify-qr?id=${userId}`;
     // Generate QR code with higher resolution (600px) to prevent blurriness
-    const qrCodeImage = await QRCode.toDataURL(qrCodeUrl, { 
+    const qrCodeImage = await QRCode.toDataURL(qrCodeUrl, {
         width: 600,
         margin: 2
     });
@@ -25,6 +26,7 @@ export const getQRCode = catchAsync(async (req, res, next) => {
     return res.status(200).json({
         success: true,
         message: 'qrcode get successfully',
+
         qrCodeImage,
         qrCodeUrl
     })
@@ -32,6 +34,7 @@ export const getQRCode = catchAsync(async (req, res, next) => {
 
 export const verifyQRCode = catchAsync(async (req, res, next) => {
     const { id } = req.query;
+    const { id: userId } = req.user;
 
     if (!id) {
         return next(new AppError('ID is required in query', 400));
@@ -196,7 +199,7 @@ export const getUserStage = catchAsync(async (req, res, next) => {
 
 export const addUserStage = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    const {stage, description, remark, remarkLabel, status, time, date} = req.body;
+    const { stage, description, remark, remarkLabel, status, time, date } = req.body;
 
     // Ensure we have some data
     const stageName = typeof stage === 'string' ? stage : stage.name;
@@ -255,7 +258,7 @@ export const addUserStage = catchAsync(async (req, res, next) => {
 
 export const removeUserStage = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    
+
     // Grab the stage ID from the query string (?stage=...)
     const stageId = req.query.stage;
 
@@ -288,13 +291,13 @@ export const removeUserStage = catchAsync(async (req, res, next) => {
 
 export const editUserStage = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    const stageId = req.query.stageId;
+    const stageId = req.query.stage;
 
     if (!stageId) {
         return next(new AppError('Please provide a stageId to edit', 400));
     }
 
-    const {stage, description, remark, remarkLabel, status, time, date} = req.body;
+    const { stage, description, remark, remarkLabel, status, time, date } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
