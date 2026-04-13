@@ -193,7 +193,7 @@ export const getUserStage = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        data: user.stage
+        stage: user.stage
     });
 });
 
