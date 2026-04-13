@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const stageJsonPath = path.join(__dirname, '../store/stage.json');
+const liveTrackingPath = path.join(__dirname, '../store/live-tracking.json');
 
 const qrCodeData = "1234567890"
 
@@ -325,4 +326,79 @@ export const editUserStage = catchAsync(async (req, res, next) => {
         message: 'Stage updated successfully',
         data: user.stage
     });
+});
+
+export const reorderUserStage = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const { stages } = req.body; // Expecting an array of stage IDs in the new order
+
+    if (!Array.isArray(stages)) {
+        return next(new AppError('Please provide an array of stage IDs', 400));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    // Reorder the user.stage array based on the provided IDs and update sequences
+    const reorderedStages = stages.map((id, index) => {
+        const stage = user.stage.id(id);
+        if (stage) {
+            stage.sequence = index + 1;
+            return stage;
+        }
+        return null;
+    }).filter(s => s !== null);
+
+    // If some stages were not found, we might have an issue, but we'll proceed for now
+    // Or we can just set the user.stage to the reordered list if it covers all stages
+    user.stage = reorderedStages;
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Stages reordered successfully',
+        data: user.stage
+    });
+});
+
+export const reorderGlobalStages = catchAsync(async (req, res, next) => {
+    const { stages } = req.body;
+
+    if (!Array.isArray(stages)) {
+        return next(new AppError('Please provide an array of stage names', 400));
+    }
+
+    try {
+        await fs.writeFile(stageJsonPath, JSON.stringify(stages, null, 2));
+    } catch (err) {
+        return next(new AppError('Failed to save reordered stages', 500));
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Global stages reordered successfully',
+        data: stages
+    });
+});
+
+export const getLiveTracking = catchAsync(async (req, res, next) => {
+    let stages = [];
+    try {
+        const data = await fs.readFile(liveTrackingPath, 'utf8');
+        if (data.trim() !== '') stages = JSON.parse(data);
+    } catch (err) {}
+
+    res.status(200).json({ success: true, data: stages });
+});
+
+export const updateLiveTracking = catchAsync(async (req, res, next) => {
+    const { stages } = req.body;
+    if (!Array.isArray(stages)) return next(new AppError('Invalid data', 400));
+
+    await fs.writeFile(liveTrackingPath, JSON.stringify(stages, null, 2));
+
+    res.status(200).json({ success: true, message: 'Live tracking updated', data: stages });
 });
