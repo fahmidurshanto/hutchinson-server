@@ -11,13 +11,11 @@ const __dirname = path.dirname(__filename);
 const stageJsonPath = path.join(__dirname, '../store/stage.json');
 const liveTrackingPath = path.join(__dirname, '../store/live-tracking.json');
 
-const qrCodeData = "1234567890"
-
 export const generateQRCode = catchAsync(async (req, res, next) => {
     // The URL that will be encoded in the QR code
     const { userId } = req.params;
 
-    const qrCodeUrl = `${process.env.FRONTEND_URL}/verify-qr?id=${userId}`;
+    const qrCodeUrl = `${process.env.FRONTEND_URL}/verify?id=${userId}`;
     // Generate QR code with higher resolution (600px) to prevent blurriness
     const qrCodeImage = await QRCode.toDataURL(qrCodeUrl, {
         width: 600,

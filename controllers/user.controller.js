@@ -47,8 +47,10 @@ export const login = catchAsync(async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user._id);
 
+    const redirect = req.query.redirect;
+
     console.log(`🚀 Generating tokens and setting cookies for user: ${user._id}`);
-    setAuthCookies(req, res, accessToken, refreshToken, 'User logged in successfully', 200);
+    setAuthCookies(req, res, accessToken, refreshToken, 'User logged in successfully', 200, redirect);
 });
 
 
@@ -190,5 +192,23 @@ export const deleteUser = catchAsync(async (req, res) => {
     res.status(200).json({
         success: true,
         message: 'User deleted successfully'
+    });
+});
+
+// Verify if user exists in DB and return their basic info
+export const verifyUser = catchAsync(async (req, res) => {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+        return clearCookie(res, 'User no longer exists in database', 401);
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'User verified successfully',
+        user: {
+            id: user._id,
+            role: user.role,
+            email: user.email,
+        }
     });
 });

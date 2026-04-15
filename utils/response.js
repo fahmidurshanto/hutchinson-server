@@ -6,7 +6,7 @@
 //     });
 // };
 
-export const setAuthCookies = (req, res, accessToken, refreshToken, message = 'Success', statusCode = 200) => {
+export const setAuthCookies = (req, res, accessToken, refreshToken, message = 'Success', statusCode = 200, redirect = null) => {
     const accessMaxAge = parseInt(process.env.ACCESS_COOKIES_VALIDITY, 10) || 15;
     const refreshMaxAge = parseInt(process.env.REFRESH_COOKIES_VALIDITY, 10) || 7;
 
@@ -33,10 +33,16 @@ export const setAuthCookies = (req, res, accessToken, refreshToken, message = 'S
         maxAge: refreshMaxAge * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(statusCode).json({
+    const responseData = {
         success: true,
         message,
-    });
+    };
+
+    if (redirect) {
+        responseData.redirect = redirect;
+    }
+
+    return res.status(statusCode).json(responseData);
 };
 
 
