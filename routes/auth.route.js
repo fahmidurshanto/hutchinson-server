@@ -9,7 +9,8 @@ import {
     getAllUsers, 
     updateUser, 
     deleteUser,
-    verifyUser
+    verifyUser,
+    getUserById
 } from '../controllers/user.controller.js';
 import { isAuthenticated, isAdmin } from '../middleware/auth.middleware.js';
 
@@ -26,6 +27,7 @@ router.get('/me', isAuthenticated, aboutMe);
 
 // Added User Management Routes
 router.get('/users', isAuthenticated, isAdmin, getAllUsers);
+router.get('/user/:id', isAuthenticated, isAdmin, getUserById);
 router.patch('/user/:id', isAuthenticated, isAdmin, updateUser);
 router.delete('/user/:id', isAuthenticated, isAdmin, deleteUser);
 

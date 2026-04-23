@@ -77,6 +77,12 @@ const userSchema = new mongoose.Schema({
         enum: ['male', 'female', 'other'],
         required: [true, 'Gender is required']
     },
+    userId: {
+        type: String,
+        required: [true, 'User ID is required'],
+        unique: true,             // already unique
+        trim: true
+    },
     email: {
         type: String,
         required: [true, 'Email is required'],

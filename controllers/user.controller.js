@@ -7,16 +7,20 @@ import { decodeToken, generateAccessToken, generateRefreshToken } from '../utils
 
 
 export const registerUser = catchAsync(async (req, res) => {
-    const { firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail, status } = req.body;
+    const { firstName, lastName, userId, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail, status } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ $or: [{ email }, { userId }, { Phone }] });
     if (existingUser) {
-        throw new AppError('User already exists', 400);
+        let field = 'User';
+        if (existingUser.email === email) field = 'Email';
+        else if (existingUser.userId === userId) field = 'User ID';
+        else if (existingUser.Phone === Phone) field = 'Phone number';
+        throw new AppError(`${field} already exists`, 400);
     }
 
     // Create new user (role defaults to 'user' from schema)
-    await User.create({ firstName, lastName, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail, status });
+    await User.create({ firstName, lastName, userId, Phone, gender, email, nric, address, nationality, password, secondaryPhone, secondaryEmail, status });
 
     res.status(201).json({
         success: true,
@@ -26,13 +30,13 @@ export const registerUser = catchAsync(async (req, res) => {
 
 // login user and get token
 export const login = catchAsync(async (req, res) => {
-    const { email, password } = req.body;
-    console.log(`🔐 Login attempt for email: ${email}`);
+    const { userId, password } = req.body;
+    console.log(`🔐 Login attempt for userId: ${userId}`);
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ userId });
     if (!user) {
-        console.log(`❌ User not found for email: ${email}`);
-        throw new AppError('Invalid email or password', 400);
+        console.log(`❌ User not found for userId: ${userId}`);
+        throw new AppError('Invalid userId or password', 400);
     }
 
     console.log(`✅ User found: ${user._id}`);
@@ -195,6 +199,31 @@ export const deleteUser = catchAsync(async (req, res) => {
     });
 });
 
+// get single user by MongoDB _id
+export const getUserById = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+
+    const userObj = user.toObject();
+    try {
+        if (user.password) {
+            userObj.password = decryptText(user.password);
+        }
+    } catch (error) {
+        console.error(`Error decrypting password for user ${user._id}:`, error);
+        userObj.password = 'Error decrypting';
+    }
+
+    res.status(200).json({
+        success: true,
+        user: userObj
+    });
+});
+
 // Verify if user exists in DB and return their basic info
 export const verifyUser = catchAsync(async (req, res) => {
     const user = await User.findById(req.user.id);
@@ -207,6 +236,7 @@ export const verifyUser = catchAsync(async (req, res) => {
         message: 'User verified successfully',
         user: {
             id: user._id,
+            userId: user.userId,
             role: user.role,
             email: user.email,
         }
