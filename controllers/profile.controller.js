@@ -268,7 +268,7 @@ export const removeMembership = catchAsync(async (req, res, next) => {
 
     // Standard filter logic to remove the specific membership
     user.memberships = user.memberships.filter(
-        (m) => m.name.toUpperCase() !== tierName.toUpperCase()
+        (m) => m.name.toLowerCase().replace(/\s+/g, '_') !== tierName.toLowerCase()
     );
 
     if (user.memberships.length === initialLength) {

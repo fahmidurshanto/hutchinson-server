@@ -17,7 +17,7 @@ import { isAuthenticated, isAdmin } from '../middleware/auth.middleware.js';
 const router = express.Router();
 
 // Defined under /api/v1/auth ...
-router.post('/user/register', isAuthenticated, isAdmin, registerUser);
+router.post('/user/register', registerUser);
 router.post('/user/changepassword', isAuthenticated, isAdmin, changeUserPasswordByAdmin);
 router.post('/admin/changepassword', isAuthenticated, isAdmin, changeAdminPassword);
 router.post('/login', login);
