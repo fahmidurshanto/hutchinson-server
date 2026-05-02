@@ -23,6 +23,10 @@ const membershipTierSchema = new mongoose.Schema(
         benefits: {
             type: [String],
             default: []
+        },
+        amount: {
+            type: Number,
+            default: 0
         }
     },
     { _id: false }
