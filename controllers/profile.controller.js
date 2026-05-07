@@ -320,7 +320,8 @@ export const addUserService = catchAsync(async (req, res, next) => {
 
 // Remove service from a user
 export const removeUserService = catchAsync(async (req, res, next) => {
-    const { userId, serviceName } = req.params;
+    const { userId } = req.params;
+    const { serviceName } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
