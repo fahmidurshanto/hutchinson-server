@@ -347,5 +347,30 @@ export const removeUserService = catchAsync(async (req, res, next) => {
     });
 });
 
+// Change password for the current user
+export const changePassword = catchAsync(async (req, res, next) => {
+    const { oldPassword, newPassword } = req.body;
 
+    if (!oldPassword || !newPassword) {
+        return next(new AppError('Please provide old and new passwords', 400));
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+        return next(new AppError('Current password is incorrect', 401));
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Password updated successfully'
+    });
+});
 

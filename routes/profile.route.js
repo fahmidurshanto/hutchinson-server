@@ -12,13 +12,15 @@ import {
     getUserServices,
     updateUserServiceStatus,
     addUserService,
-    removeUserService
+    removeUserService,
+    changePassword
 } from '../controllers/profile.controller.js';
 import { isAuthenticated, isAdmin } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 // Defined under /api/v1/user ...
+router.post('/change-password', isAuthenticated, changePassword);
 router.get('/financial-summary/:userId', isAuthenticated, getFinancialSummary);
 router.get('/investment-reports/:userId', isAuthenticated, getInvestmentReports);
 router.post('/investment-reports/:userId', isAuthenticated, isAdmin, createOrUpdateInvestmentReport);
