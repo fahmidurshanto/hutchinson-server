@@ -28,7 +28,8 @@ const membershipTierSchema = new mongoose.Schema(
             type: Number,
             default: 0
         }
-    }
+       },
+    { _id: false }
 );
 
 // ─── User Service sub-schema ──────────────────────────────────────────────────
@@ -44,7 +45,8 @@ const userServiceSchema = new mongoose.Schema(
             enum: ['Valid', 'Invalid'],
             default: 'Valid'
         }
-    }
+    },
+    { _id: false }
 );
 
 const defaultServices = [

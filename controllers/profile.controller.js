@@ -45,10 +45,11 @@ export const updateMembershipStatus = catchAsync(async (req, res, next) => {
     }
 
     const query = { _id: userId };
-    if (tierId) {
-        query['memberships._id'] = tierId;
-    } else {
+    if (tierName) {
         query['memberships.name'] = tierName;
+    } else if (tierId) {
+        // Fallback for tierId which might be the name now
+        query['memberships.name'] = tierId;
     }
 
     const user = await User.findOneAndUpdate(
@@ -82,8 +83,8 @@ export const updateUserServiceStatus = catchAsync(async (req, res, next) => {
     }
 
     const service = user.services.find(s => 
-        (serviceId && s._id?.toString() === serviceId) || 
-        (serviceName && s.name === serviceName)
+        (serviceName && s.name === serviceName) ||
+        (serviceId && s.name === serviceId)
     );
 
     if (!service) {
@@ -277,11 +278,11 @@ export const removeMembership = catchAsync(async (req, res, next) => {
 
     const initialLength = user.memberships.length;
 
-    // Remove by ID if possible, otherwise fallback to name comparison (the old "underscore hack")
+    // Remove by name (tierId is now expected to be the encoded name)
     user.memberships = user.memberships.filter((m) => {
-        if (m._id && m._id.toString() === tierId) return false;
-        // Fallback for legacy data or if tierId is actually a name
+        const encodedName = encodeURIComponent(m.name.toLowerCase().replace(/\s+/g, '_'));
         if (m.name.toLowerCase().replace(/\s+/g, '_') === tierId.toLowerCase()) return false;
+        if (m.name === tierId) return false;
         return true;
     });
 
@@ -343,10 +344,10 @@ export const removeUserService = catchAsync(async (req, res, next) => {
 
     const initialLength = user.services.length;
 
-    // Filter out the specific service by ID (preferred) or name (fallback)
+    // Filter out the specific service by name (serviceId is now expected to be the name)
     user.services = user.services.filter((s) => {
-        if (s._id && s._id.toString() === serviceId) return false;
         if (s.name.toLowerCase() === serviceId?.toLowerCase()) return false;
+        if (s.name === serviceId) return false;
         return true;
     });
 
