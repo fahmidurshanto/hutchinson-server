@@ -29,11 +29,11 @@ router.get('/services/:userId', isAuthenticated, getServiceStatus);
 router.get('/user-services/:userId', isAuthenticated, getUserServices);
 router.patch('/user-services/:userId', isAuthenticated, isAdmin, updateUserServiceStatus);
 router.post('/user-services/:userId', isAuthenticated, isAdmin, addUserService);
-router.delete('/user-services/:userId/:serviceId', isAuthenticated, isAdmin, removeUserService);
+router.delete('/user-services/:userId', isAuthenticated, isAdmin, removeUserService);
 router.get('/memberships/:userId', isAuthenticated, getMemberships);
 router.patch('/memberships/:userId', isAuthenticated, isAdmin, updateMembershipStatus);
 router.post('/memberships/:userId', isAuthenticated, isAdmin, addMembership);
-router.delete('/memberships/:userId/:tierId', isAuthenticated, isAdmin, removeMembership);
+router.delete('/memberships/:userId/:tierName', isAuthenticated, isAdmin, removeMembership);
 
 
 

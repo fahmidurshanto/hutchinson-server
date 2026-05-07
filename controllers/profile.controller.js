@@ -38,28 +38,20 @@ export const getUserServices = catchAsync(async (req, res, next) => {
 // Update membership status for a user
 export const updateMembershipStatus = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    const { tierId, tierName, status } = req.body;
+    const { tierName, status } = req.body;
 
-    if ((!tierId && !tierName) || !status) {
-        return next(new AppError('Please provide tierId (or tierName) and status', 400));
-    }
-
-    const query = { _id: userId };
-    if (tierName) {
-        query['memberships.name'] = tierName;
-    } else if (tierId) {
-        // Fallback for tierId which might be the name now
-        query['memberships.name'] = tierId;
+    if (!tierName || !status) {
+        return next(new AppError('Please provide tierName and status', 400));
     }
 
     const user = await User.findOneAndUpdate(
-        query,
+        { _id: userId, 'memberships.name': tierName },
         { $set: { 'memberships.$.status': status.toLowerCase() } },
         { new: true, runValidators: true }
     );
 
     if (!user) {
-        return next(new AppError('User or membership tier not found', 404));
+        return next(new AppError('User or tier not found', 404));
     }
 
     res.status(200).json({
@@ -71,10 +63,10 @@ export const updateMembershipStatus = catchAsync(async (req, res, next) => {
 // Update service status for a user
 export const updateUserServiceStatus = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    const { serviceId, serviceName, status } = req.body;
+    const { serviceName, status } = req.body;
 
-    if (!serviceId && !serviceName) {
-        return next(new AppError('Please provide serviceId or serviceName', 400));
+    if (!serviceName) {
+        return next(new AppError('Please provide serviceName', 400));
     }
 
     const user = await User.findById(userId);
@@ -82,11 +74,7 @@ export const updateUserServiceStatus = catchAsync(async (req, res, next) => {
         return next(new AppError('User not found', 404));
     }
 
-    const service = user.services.find(s => 
-        (serviceName && s.name === serviceName) ||
-        (serviceId && s.name === serviceId)
-    );
-
+    const service = user.services.find(s => s.name === serviceName);
     if (!service) {
         return next(new AppError('User or service not found', 404));
     }
@@ -269,7 +257,7 @@ export const addMembership = catchAsync(async (req, res, next) => {
 
 // Remove membership from a user
 export const removeMembership = catchAsync(async (req, res, next) => {
-    const { userId, tierId } = req.params;
+    const { userId, tierName } = req.params;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -278,13 +266,10 @@ export const removeMembership = catchAsync(async (req, res, next) => {
 
     const initialLength = user.memberships.length;
 
-    // Remove by name (tierId is now expected to be the encoded name)
-    user.memberships = user.memberships.filter((m) => {
-        const encodedName = encodeURIComponent(m.name.toLowerCase().replace(/\s+/g, '_'));
-        if (m.name.toLowerCase().replace(/\s+/g, '_') === tierId.toLowerCase()) return false;
-        if (m.name === tierId) return false;
-        return true;
-    });
+    // Standard filter logic to remove the specific membership
+    user.memberships = user.memberships.filter(
+        (m) => m.name.toLowerCase().replace(/\s+/g, '_') !== tierName.toLowerCase()
+    );
 
     if (user.memberships.length === initialLength) {
         return next(new AppError('Membership tier not found on user profile', 404));
@@ -335,7 +320,8 @@ export const addUserService = catchAsync(async (req, res, next) => {
 
 // Remove service from a user
 export const removeUserService = catchAsync(async (req, res, next) => {
-    const { userId, serviceId } = req.params;
+    const { userId } = req.params;
+    const { serviceName } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -344,22 +330,10 @@ export const removeUserService = catchAsync(async (req, res, next) => {
 
     const initialLength = user.services.length;
 
-    // Filter out the specific service by name (serviceId is now expected to be the name)
-    user.services = user.services.filter((s) => {
-        if (s.name.toLowerCase() === serviceId?.toLowerCase()) return false;
-        if (s.name === serviceId) return false;
-        return true;
-    });
-
-    if (user.services.length === initialLength) {
-        // If we tried with serviceId from params and it failed, maybe it was in the body? (Legacy support)
-        const bodyServiceName = req.body.serviceName;
-        if (bodyServiceName) {
-            user.services = user.services.filter(
-                (s) => s.name.toLowerCase() !== bodyServiceName.toLowerCase()
-            );
-        }
-    }
+    // Filter out the specific service
+    user.services = user.services.filter(
+        (s) => s.name.toLowerCase() !== serviceName.toLowerCase()
+    );
 
     if (user.services.length === initialLength) {
         return next(new AppError('Service not found on user profile', 404));
