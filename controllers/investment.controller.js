@@ -55,8 +55,7 @@ export const setInvestmentValidity = catchAsync(async (req, res) => {
 
 
 export const getInvestment = catchAsync(async (req, res) => {
-    const { year } = req.query;
-    const { userId } = req.body;
+    const { year, userId } = req.query;
 
     if (!userId) throw new AppError("UserId is required", 400);
 

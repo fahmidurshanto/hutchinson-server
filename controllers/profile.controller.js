@@ -38,20 +38,27 @@ export const getUserServices = catchAsync(async (req, res, next) => {
 // Update membership status for a user
 export const updateMembershipStatus = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    const { tierName, status } = req.body;
+    const { tierId, tierName, status } = req.body;
 
-    if (!tierName || !status) {
-        return next(new AppError('Please provide tierName and status', 400));
+    if ((!tierId && !tierName) || !status) {
+        return next(new AppError('Please provide tierId (or tierName) and status', 400));
+    }
+
+    const query = { _id: userId };
+    if (tierId) {
+        query['memberships._id'] = tierId;
+    } else {
+        query['memberships.name'] = tierName;
     }
 
     const user = await User.findOneAndUpdate(
-        { _id: userId, 'memberships.name': tierName },
+        query,
         { $set: { 'memberships.$.status': status.toLowerCase() } },
         { new: true, runValidators: true }
     );
 
     if (!user) {
-        return next(new AppError('User or tier not found', 404));
+        return next(new AppError('User or membership tier not found', 404));
     }
 
     res.status(200).json({
@@ -63,10 +70,10 @@ export const updateMembershipStatus = catchAsync(async (req, res, next) => {
 // Update service status for a user
 export const updateUserServiceStatus = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    const { serviceName, status } = req.body;
+    const { serviceId, serviceName, status } = req.body;
 
-    if (!serviceName) {
-        return next(new AppError('Please provide serviceName', 400));
+    if (!serviceId && !serviceName) {
+        return next(new AppError('Please provide serviceId or serviceName', 400));
     }
 
     const user = await User.findById(userId);
@@ -74,7 +81,11 @@ export const updateUserServiceStatus = catchAsync(async (req, res, next) => {
         return next(new AppError('User not found', 404));
     }
 
-    const service = user.services.find(s => s.name === serviceName);
+    const service = user.services.find(s => 
+        (serviceId && s._id?.toString() === serviceId) || 
+        (serviceName && s.name === serviceName)
+    );
+
     if (!service) {
         return next(new AppError('User or service not found', 404));
     }
@@ -257,7 +268,7 @@ export const addMembership = catchAsync(async (req, res, next) => {
 
 // Remove membership from a user
 export const removeMembership = catchAsync(async (req, res, next) => {
-    const { userId, tierName } = req.params;
+    const { userId, tierId } = req.params;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -266,10 +277,13 @@ export const removeMembership = catchAsync(async (req, res, next) => {
 
     const initialLength = user.memberships.length;
 
-    // Standard filter logic to remove the specific membership
-    user.memberships = user.memberships.filter(
-        (m) => m.name.toLowerCase().replace(/\s+/g, '_') !== tierName.toLowerCase()
-    );
+    // Remove by ID if possible, otherwise fallback to name comparison (the old "underscore hack")
+    user.memberships = user.memberships.filter((m) => {
+        if (m._id && m._id.toString() === tierId) return false;
+        // Fallback for legacy data or if tierId is actually a name
+        if (m.name.toLowerCase().replace(/\s+/g, '_') === tierId.toLowerCase()) return false;
+        return true;
+    });
 
     if (user.memberships.length === initialLength) {
         return next(new AppError('Membership tier not found on user profile', 404));
@@ -320,8 +334,7 @@ export const addUserService = catchAsync(async (req, res, next) => {
 
 // Remove service from a user
 export const removeUserService = catchAsync(async (req, res, next) => {
-    const { userId } = req.params;
-    const { serviceName } = req.body;
+    const { userId, serviceId } = req.params;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -330,10 +343,22 @@ export const removeUserService = catchAsync(async (req, res, next) => {
 
     const initialLength = user.services.length;
 
-    // Filter out the specific service
-    user.services = user.services.filter(
-        (s) => s.name.toLowerCase() !== serviceName.toLowerCase()
-    );
+    // Filter out the specific service by ID (preferred) or name (fallback)
+    user.services = user.services.filter((s) => {
+        if (s._id && s._id.toString() === serviceId) return false;
+        if (s.name.toLowerCase() === serviceId?.toLowerCase()) return false;
+        return true;
+    });
+
+    if (user.services.length === initialLength) {
+        // If we tried with serviceId from params and it failed, maybe it was in the body? (Legacy support)
+        const bodyServiceName = req.body.serviceName;
+        if (bodyServiceName) {
+            user.services = user.services.filter(
+                (s) => s.name.toLowerCase() !== bodyServiceName.toLowerCase()
+            );
+        }
+    }
 
     if (user.services.length === initialLength) {
         return next(new AppError('Service not found on user profile', 404));
