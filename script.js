@@ -3,6 +3,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from './models/user.model.js';
+import Document from './models/document.model.js';
 import dns from 'dns';
 
 dotenv.config();
@@ -12,23 +13,16 @@ async function run() {
         dns.setServers(['8.8.8.8', '1.1.1.1']);
         await mongoose.connect(process.env.MONGO_URI);
 
-        const result = await User.collection.updateMany(
-            {},
+        const result = await Document.collection.updateMany(
+            { viewExpiry: { $exists: false } },
             {
                 $set: {
-                    "memberships.$[elem].amount": 0
+                    viewExpiry: null
                 }
-            },
-            {
-                arrayFilters: [
-                    {
-                        "elem.amount": { $exists: false }
-                    }
-                ]
             }
         );
 
-        console.log(result);
+        console.log(`Updated ${result.modifiedCount} documents. Added viewExpiry: null.`);
 
         process.exit(0);
 
