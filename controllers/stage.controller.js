@@ -226,7 +226,7 @@ export const addUserStage = catchAsync(async (req, res, next) => {
     const newStage = {
         name: stageName,
         sequence: req.body.sequence !== undefined ? req.body.sequence : nextSequence,
-        description: description || `Description for ${stageName}`,
+        description: description || "",
         remark: remark || undefined,
         remarkLabel: remarkLabel || undefined,
         status: status || undefined,

@@ -157,7 +157,10 @@ const userSchema = new mongoose.Schema({
                 remarkLabel: { type: String },
                 status: { type: String, enum: ['upcoming', 'processed', 'active'], default: 'upcoming' },
                 _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
-                description: { type: String, required: true },
+                description: {
+                    type: String,
+                    default: ""
+                },
                 time: { type: Date, default: Date.now },
             }
         ],
