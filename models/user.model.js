@@ -164,6 +164,10 @@ const userSchema = new mongoose.Schema({
                 time: { type: Date, default: Date.now },
             }
         ],
+    },
+    stageHighlight: {
+        type: String,
+        default: ""
     }
 
 }, { timestamps: true });
