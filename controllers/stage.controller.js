@@ -242,8 +242,8 @@ export const addUserStage = catchAsync(async (req, res, next) => {
 
     // Backward compatibility: patch any older stages that exist in the DB without the newly required 'description'
     user.stage.forEach(s => {
-        if (!s.description) {
-            s.description = `Legacy description for ${s.name}`;
+        if (s.description === undefined || s.description === null) {
+            s.description = "";
         }
     });
 
@@ -388,7 +388,7 @@ export const getLiveTracking = catchAsync(async (req, res, next) => {
     try {
         const data = await fs.readFile(liveTrackingPath, 'utf8');
         if (data.trim() !== '') stages = JSON.parse(data);
-    } catch (err) {}
+    } catch (err) { }
 
     res.status(200).json({ success: true, data: stages });
 });
