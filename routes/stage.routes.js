@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAdmin, isAuthenticated } from '../middleware/auth.middleware.js';
-import { addStage, getAllStage, generateQRCode, verifyQRCode, getUserStage, addUserStage, removeUserStage, editUserStage, deleteStage, editStage, reorderUserStage, reorderGlobalStages, getLiveTracking, updateLiveTracking } from '../controllers/stage.controller.js';
+import { addStage, getAllStage, generateQRCode, verifyQRCode, getUserStage, addUserStage, removeUserStage, editUserStage, deleteStage, editStage, reorderUserStage, reorderGlobalStages, getLiveTracking, updateLiveTracking, updateUserStageHighlight } from '../controllers/stage.controller.js';
 
 const router = express.Router();
 
@@ -26,6 +26,7 @@ router.post('/user/:userId',isAuthenticated,isAdmin, addUserStage);
 router.delete('/user/:userId',isAuthenticated,isAdmin, removeUserStage);
 router.put('/user/:userId',isAuthenticated,isAdmin, editUserStage);
 router.put('/user/:userId/reorder', isAuthenticated, isAdmin, reorderUserStage);
+router.put('/user/:userId/highlight', isAuthenticated, isAdmin, updateUserStageHighlight);
 
 
 export default router;

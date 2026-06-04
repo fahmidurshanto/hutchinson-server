@@ -192,7 +192,8 @@ export const getUserStage = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        stage: user.stage
+        stage: user.stage,
+        stageHighlight: user.stageHighlight || ""
     });
 });
 
@@ -399,4 +400,29 @@ export const updateLiveTracking = catchAsync(async (req, res, next) => {
     await fs.writeFile(liveTrackingPath, JSON.stringify(stages, null, 2));
 
     res.status(200).json({ success: true, message: 'Live tracking updated', data: stages });
+});
+
+export const updateUserStageHighlight = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const { stageHighlight } = req.body;
+
+    if (stageHighlight === undefined) {
+        return next(new AppError('Please provide stageHighlight', 400));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    user.stageHighlight = stageHighlight;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Stage highlight updated successfully',
+        data: {
+            stageHighlight: user.stageHighlight
+        }
+    });
 });
