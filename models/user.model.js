@@ -27,6 +27,10 @@ const membershipTierSchema = new mongoose.Schema(
         amount: {
             type: Number,
             default: 0
+        },
+        hideStatus: {
+            type: Boolean,
+            default: false
         }
     },
     { _id: false }

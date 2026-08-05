@@ -38,15 +38,19 @@ export const getUserServices = catchAsync(async (req, res, next) => {
 // Update membership status for a user
 export const updateMembershipStatus = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
-    const { tierName, status } = req.body;
+    const { tierName, status, hideStatus } = req.body;
 
-    if (!tierName || !status) {
-        return next(new AppError('Please provide tierName and status', 400));
+    if (!tierName || (status === undefined && hideStatus === undefined)) {
+        return next(new AppError('Please provide tierName and at least one of status or hideStatus', 400));
     }
+
+    const updateSet = {};
+    if (status !== undefined) updateSet['memberships.$.status'] = String(status).toLowerCase();
+    if (hideStatus !== undefined) updateSet['memberships.$.hideStatus'] = Boolean(hideStatus);
 
     const user = await User.findOneAndUpdate(
         { _id: userId, 'memberships.name': tierName },
-        { $set: { 'memberships.$.status': status.toLowerCase() } },
+        { $set: updateSet },
         { new: true, runValidators: true }
     );
 
